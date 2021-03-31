@@ -8,7 +8,7 @@ server {
 
     listen 80;
 
-    server_name {{ " ".join(public_hostnames) }}
+    server_name {{ " ".join(public_hostnames) }};
 
     access_log /var/log/nginx/access_{{ public_hostnames[0].replace('.', '_') }}.log;
     error_log /var/log/nginx/error_{{ public_hostnames[0].replace('.', '_') }}.log;
