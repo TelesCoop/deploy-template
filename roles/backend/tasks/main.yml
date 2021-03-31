@@ -50,7 +50,7 @@
   template:
     src: settings.ini.j2
     dest: "/etc/{{ organization_slug }}/{{ project_slug }}/settings.ini"
-    owner: green-menu
+    owner: "{{ main_user }}"
     group: devops
     mode: 0660
 

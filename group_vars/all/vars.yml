@@ -7,7 +7,7 @@ main_user_uid: 1040  # must be unique for each project on the server
 public_hostnames:
   - app.{{ project_slug }}.com
   - "{{ project_slug }}.{{ organization_slug }}.fr"
-django_project_name: my_project_back
+django_project_name: "{{ project_slug.replace('-', '_') }}_back"
 backend_repo: git@gitlab.com:{{ organization_slug }}/{{ project_slug }}/{{ my_project_back }}.git
 frontend_repo:
   git@gitlab.com:{{ organization_slug }}/{{ project_slug }}/{{ project_slug }}_front.git
