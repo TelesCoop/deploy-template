@@ -25,6 +25,7 @@ server {
         alias {{ backend_static_path }};
     }
 
+<<<<<<< HEAD
     {% for uri in server_uris_passed_to_backend %}
         location /{{ uri }}/ {
             proxy_pass         http://app_servers_{{ project_slug }}/;
@@ -37,8 +38,14 @@ server {
     {% endfor %}
 
     # send all the rest to the frontend
+=======
+>>>>>>> [-] remove vue-related references and tasks
     location / {
-        try_files $uri /index.html =404;
-        root {{ frontend_static_path }};
+        proxy_pass         http://app_servers/;
+        proxy_redirect     off;
+        proxy_set_header   Host $host;
+        proxy_set_header   X-Real-IP $remote_addr;
+        proxy_set_header   X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header   X-Forwarded-Host $server_name;
     }
 }

@@ -1,5 +1,5 @@
 
-# Mise en production et maintenance avec Ansible d'un site avec Stack Django Vue
+# Mise en production et maintenance avec Ansible d'un site avec Django
 
 ## Stack technique
 
@@ -7,7 +7,6 @@ Principaux outils open-sources
 
 - frontend:
   - Serveur nginx
-  - framework Vue
 - backend: framework Django, gunicorn pour le wsgi
 
 Outils externes potentiellement payants
@@ -18,9 +17,6 @@ Outils externes potentiellement payants
 
 Ce considère donc :
 
-- que vous utilisez `Vue` ou un autre projet qui se compile avec
-  `npm run generate` pour le frontend. Adapter
-  `roles/frontend/tasks/main.yml:Build frontend code` si nécessaire
 - que vous utilisez `Django` pour le backend
 - que vous utilisez les outils externes sus-mentionnés (s'il y en a
   un ou plusieurs que vous n'utilisez pas, il suffit de les supprimer de
@@ -46,8 +42,7 @@ Pour un nouveau serveur ou projet, ils sont à lancer dans cet ordre.
 - `backend` : télécharge le code back, installe les dépendances du backend et paramètre
   `supervisord`.
 
-- `frontend` : télécharge le code front, installe les dépendances du backend et paramètre
-  `nginx`.
+- `frontend` : installe nginx et paramètre `nginx`.
 
 ## Procédure de maintenance
 
@@ -66,7 +61,7 @@ Installation du serveur ou mise à jour de tout :
 - `ansible-playbook bootstrap.yml`
 - `ansible-playbook base.yml`
 
-### MAJ ou installation du frontend
+### MAJ ou installation de nginx
 
 `ansible-playbook frontend.yml`
 
