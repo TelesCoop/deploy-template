@@ -82,6 +82,8 @@ chaque commit.
 
 - modifier le fichier `hosts` pour indiquer sur quel nom de domain ou IP se trouve
   le serveur à manager.
+- modifier les variables dans `group_vars/vars.yml`, notamment
+  organization_slug, project_slug, main_user, public_hostnames, django_project_name
 - modifier les variables dans `group_vars/cross_env_vars.yml`, notamment :
   - le port ssh
   - les utilisateurs et leurs clés ssh publiques
