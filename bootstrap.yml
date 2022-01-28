@@ -78,20 +78,3 @@
         user: root
         state: present
         password: "{{ users.root.pwd | password_hash('sha512') }}"
-
-    - name: Generate /etc/ssh/ RSA host key
-      command: "ssh-keygen -q -t rsa -f {{ identity_file_path }} -C \"\" -N \"\""
-      args:
-        creates: "{{ identity_file_path }}"
-
-    - name: Make ssh key parent folder executable by all
-      file:
-        path: "{{ identity_file_path.replace('/id_rsa', '') }}"
-        state: directory
-        mode: a+rx
-        recurse: true
-
-    - name: Make ssh key readable by all
-      file:
-        path: "{{ identity_file_path }}"
-        mode: a+r

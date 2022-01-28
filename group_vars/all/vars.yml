@@ -13,5 +13,5 @@ frontend_repo:
   git@gitlab.com:{{ organization_slug }}/{{ project_slug }}/{{ project_slug }}_front.git
 backend_application_port: 8064  # must be unique for each project on the server
 backend_static_path: /{{ organization_slug }}/{{ project_slug}}/backend_static
-identity_file_path: /home/ubuntu/.ssh/id_rsa
+identity_file_path: /home/{{ main_user }}/.ssh/id_ed25519
 var_log_path: /var/log/{{ organization_slug }}/{{ project_slug }}
