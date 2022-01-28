@@ -8,7 +8,7 @@ public_hostnames:
   - app.{{ project_slug }}.com
   - "{{ project_slug }}.{{ organization_slug }}.fr"
 django_project_name: "{{ project_slug.replace('-', '_') }}_back"
-backend_repo: git@gitlab.com:{{ organization_slug }}/{{ project_slug }}/{{ my_project_back }}.git
+backend_repo: git@gitlab.com:{{ organization_slug }}/{{ project_slug }}/backend.git
 frontend_repo:
   git@gitlab.com:{{ organization_slug }}/{{ project_slug }}/{{ project_slug }}_front.git
 backend_application_port: 8064  # must be unique for each project on the server
