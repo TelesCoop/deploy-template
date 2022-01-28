@@ -73,7 +73,7 @@
     dest: "{{ backend_path }}"
     key_file: "{{ identity_file_path }}"
     force: true
-    version: master
+    version: main
     accept_hostkey: true
   become_user: "{{ main_user }}"
   register: clonecode

@@ -22,7 +22,7 @@
     key_file: "{{ identity_file_path }}"
     accept_hostkey: true
     force: true
-    version: master
+    version: main
   become_user: "{{ main_user }}"
   register: clonecode
 
