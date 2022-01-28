@@ -1,6 +1,6 @@
 [security]
 secret_key={{ vault_django_secret_key }}
-allowed_hosts={{ ", ".join(public_hostnames) }}
+allowed_hosts={{ ", ".join(public_hostnames) }},localhost
 
 [mail]
 api_key={{ vault_mailgun_api_key }}
@@ -12,7 +12,7 @@ backup_bucket={{ project_slug }}-backup
 backup_region=eu-west-3
 
 [bugs]
-rollbar_access_token={{ vault_rollbar_access_token: }}
+rollbar_access_token={{ vault_rollbar_access_token }}
 
 [staticfiles]
 static_root={{ backend_static_path }}

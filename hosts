@@ -1,2 +1,2 @@
 [prod]
-subdomain.my-website.com:my_ssh_port ansible_user=ubuntu
+moine.tlscp.fr:42722 ansible_user=ubuntu

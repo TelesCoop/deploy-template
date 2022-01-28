@@ -1,3 +1,10 @@
+- name: Remove default nginx config
+  file:
+    state: absent
+    dest: /etc/nginx/sites-enabled/default
+  notify:
+    - reload nginx
+
 - name: Copy nginx config
   template:
     src: nginx.conf.j2
@@ -8,11 +15,16 @@
   notify:
     - reload nginx
 
-- name: install node and npm
+- name: Update sources for node
+  shell:
+    cmd: curl -fsSL https://deb.nodesource.com/setup_16.x | sudo -E bash - && touch /{{ organization_slug }}/{{ project_slug}}/node_setup
+    warn: no
+    creates: /{{ organization_slug }}/{{ project_slug}}/node_setup
+
+- name: install node
   apt:
     pkg:
       - nodejs
-      - npm
     state: present
 
 - name: get latest frontend code
@@ -22,7 +34,7 @@
     key_file: "{{ identity_file_path }}"
     accept_hostkey: true
     force: true
-    version: master
+    version: main
   become_user: "{{ main_user }}"
   register: clonecode
 
@@ -39,26 +51,25 @@
 
 - name: Build frontend code
   command:
-    cmd: "npm run generate"
+    cmd: "npm run build"
     chdir: "{{ frontend_path }}"
   when: clonecode.changed
 
-- name: update fontend static folder
-  file:
-    path: "{{ frontend_static_path }}"
-    state: "{{ item }}"
-    owner: www-data
-    mode: '2755'
-  with_items:
-    - absent
-    - directory
+- name: Copy supervisord config
+  template:
+    src: frontend-supervisor.conf.j2
+    dest: "{{ supervisor_conf }}/{{ project_slug }}_frontend.conf"
+    owner: root
+    group: root
+    mode: 0644
 
-- name: update fontend static folder content
-  synchronize:
-    src: "{{ frontend_path }}/dist/"
-    dest: "{{ frontend_static_path }}/"
-    rsync_opts:
-      - "-og"
-      - "--chown=www-data"
+- name: Install {{ project_slug }} supervisor
+  supervisorctl:
+    name: "{{ project_slug }}-frontend"
+    state: present
 
-  delegate_to: "{{ inventory_hostname }}"
+- name: Restart {{ project_slug }} supervisor
+  supervisorctl:
+    name: "{{ project_slug }}-frontend"
+    state: restarted
+  # when: clonecode.changed

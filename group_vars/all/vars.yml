@@ -1,17 +1,17 @@
 ---
 
 organization_slug: telescoop
-project_slug: my-project
-main_user: my-project
-main_user_uid: 1040  # must be unique for each project on the server
+project_slug: moine
+main_user: moine
+main_user_uid: 1009  # must be unique for each project on the server
 public_hostnames:
-  - app.{{ project_slug }}.com
-  - "{{ project_slug }}.{{ organization_slug }}.fr"
+  - moine.tlscp.fr
 django_project_name: "{{ project_slug.replace('-', '_') }}_back"
-backend_repo: git@gitlab.com:{{ organization_slug }}/{{ project_slug }}/{{ my_project_back }}.git
-frontend_repo:
-  git@gitlab.com:{{ organization_slug }}/{{ project_slug }}/{{ project_slug }}_front.git
-backend_application_port: 8064  # must be unique for each project on the server
+backend_repo: git@gitlab.com:telescoop-public/mes-outils-inclusion-numerique/backend.git
+frontend_repo: git@gitlab.com:telescoop-public/mes-outils-inclusion-numerique/frontend.git
+backend_application_port: 8000  # must be unique for each project on the same server
+frontend_application_port: 3000  # must be unique for each project on the same server
 backend_static_path: /{{ organization_slug }}/{{ project_slug}}/backend_static
-identity_file_path: /home/ubuntu/.ssh/id_rsa
+identity_file_path: /home/{{ main_user }}/.ssh/id_ed25519
 var_log_path: /var/log/{{ organization_slug }}/{{ project_slug }}
+supervisor_conf: /etc/supervisor/conf.d

@@ -26,7 +26,7 @@ Ce considère donc :
   un ou plusieurs que vous n'utilisez pas, il suffit de les supprimer de
   `roles/backend/templates/settings.ini.j2`)
 - que vous utilisez `gunicorn` comme outil `wsgi` pour le backend. À adapter
-  dans `roles/backend/teamplte/supervisor.conf.j2`
+  dans `roles/backend/teamplte/backend-supervisor.conf.j2`
 - que vous utilisez
   [telescoop-backup](https://gitlab.com/telescoop-public/django-apps/telescoop-backup)
   pour sauvegarder votre base de donnée. À adapter dans `roles/backend/tasks/cron.yml`.
