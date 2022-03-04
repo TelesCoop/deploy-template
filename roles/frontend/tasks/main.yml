@@ -27,6 +27,12 @@
       - nodejs
     state: present
 
+- name: install yarn globally
+  community.general.npm:
+    name: yarn
+    global: yes
+
+
 - name: get latest frontend code
   git:
     repo: '{{ frontend_repo }}'
@@ -43,15 +49,15 @@
     src: frontend.env
     dest: "{{ frontend_path }}/.env"
 
-- name: Install node dependencies
+- name: Install project dependencies
   command:
-    cmd: "npm install"
+    cmd: "yarn install"
     chdir: "{{ frontend_path }}"
   when: clonecode.changed
 
 - name: Build frontend code
   command:
-    cmd: "npm run build"
+    cmd: "yarn build"
     chdir: "{{ frontend_path }}"
   when: clonecode.changed
 
