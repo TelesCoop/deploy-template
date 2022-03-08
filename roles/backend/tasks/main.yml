@@ -88,6 +88,8 @@
 - name: run migrations
   command:
     cmd: "/usr/local/bin/{{ project_slug }}-ctl migrate"
+  become: true
+  become_user: "{{ main_user }}"
   when: clonecode.changed
 
 - name: collect backend static files
