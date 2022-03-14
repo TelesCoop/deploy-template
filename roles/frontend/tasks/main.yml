@@ -8,11 +8,19 @@
   notify:
     - reload nginx
 
-- name: install node and npm
+- name: Update sources for node
+  shell:
+    cmd: >
+            curl -fsSL https://deb.nodesource.com/setup_16.x
+            | sudo -E bash -
+            && touch /{{ organization_slug }}/{{ project_slug}}/node_setup
+    warn: false
+    creates: /{{ organization_slug }}/{{ project_slug}}/node_setup
+
+- name: install node
   apt:
     pkg:
       - nodejs
-      - npm
     state: present
 
 - name: get latest frontend code
@@ -39,7 +47,7 @@
 
 - name: Build frontend code
   command:
-    cmd: "npm run generate"
+    cmd: "npm run build"
     chdir: "{{ frontend_path }}"
   when: clonecode.changed
 
