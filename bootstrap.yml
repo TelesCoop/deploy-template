@@ -16,14 +16,36 @@
         - devops
         - ssh-allowed
 
+    - name: Download employees file
+      get_url:
+        url: https://gitlab.com/telescoop-public/devops/company-settings/-/raw/main/employees.yaml
+        dest: ./employees.yaml
+        force: yes # file might have been updated
+      delegate_to: localhost
+
+    - name: Define employees variable from file
+      include_vars:
+        file: employees.yaml
+        name: employees
+
     - name: Create users
       user:
         name: "{{ item.name }}"
-        password: "{{ item.pwd | password_hash('sha512') }}"
         group: devops
         groups: sudo,ssh-allowed
         append: true
-      loop: "{{ users.devops }}"
+      loop: "{{ employees.employees }}"
+      when: not item.remove|default(false)
+      loop_control:
+        label: "{{ item.name }}"
+
+    - name: Remove former users
+      user:
+        name: "{{ item.name }}"
+        force: true
+        state: absent
+      loop: "{{ employees.employees }}"
+      when: item.remove|default(false)
       loop_control:
         label: "{{ item.name }}"
 
@@ -33,7 +55,7 @@
         state: present
         key: "{{ item.ssh_key }}"
         comment: "{{ item.name }}"
-      loop: "{{ users.devops }}"
+      loop: "{{ employees.employees }}"
       loop_control:
         label: "{{ item.name }}"
 
@@ -43,7 +65,7 @@
         state: present
         key: "{{ item.ssh_key }}"
         comment: "{{ item.name }}"
-      loop: "{{ users.devops }}"
+      loop: "{{ employees.employees }}"
       loop_control:
         label: "{{ item.name }}"
 
