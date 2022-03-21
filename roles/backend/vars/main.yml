@@ -1,7 +1,5 @@
 ---
 
-var_log_path: /var/log/{{ organization_slug }}/{{ project_slug }}
-
 venv:
   path: /usr/local/{{ organization_slug }}/{{ project_slug }}/backend/venv
 

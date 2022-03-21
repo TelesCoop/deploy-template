@@ -72,7 +72,7 @@ Installation du serveur ou mise à jour de tout :
 
 ### MAJ ou installation du backend
 
-`ansible-playbook frontend.yml`
+`ansible-playbook backend.yml`
 
 ## Adapter ce template pour un nouveau projet
 
@@ -86,13 +86,12 @@ chaque commit.
   organization_slug, project_slug, main_user, public_hostnames, django_project_name
 - modifier les variables dans `group_vars/cross_env_vars.yml`, notamment :
   - le port ssh
-  - les utilisateurs et leurs clés ssh publiques
 - vérifier les variables dans `roles/backend/vars/main.yml` et `roles/frontend/vars/main.yml`.
 - générer des identifiants Mailgun, AWS S3 et Rollbar pour le projet.
 - modifier la clé du coffre-fort Ansible avec une clé générée aléatoirement en
   lançant `bash generate_vault_key_on_first_install.sh`. Cela crée un fichier
   `vault.key` qui contient la clé du coffre-fort Ansible. Sauvegarder cette clé
-  en endroit sûr et la partager de manière sûre avec les collègues.
+  en endroit sûr et la partager de manière sûre avec les collègues (via Lastpass).
 - modifier les valeurs du vault: `ansible-vault edit group_vars/all/cross_env_vault.yml`
 
 ## TODO
