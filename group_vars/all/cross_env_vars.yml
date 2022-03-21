@@ -3,23 +3,10 @@
 support_mail_addr: contact@{{ organization_slug }}.fr
 
 sshd:
-  port: 22222
+  port: 42722
 
 users:
   root:
     pwd: "{{ vault_pwd_root }}"
   ubuntu:
     pwd: "{{ vault_pwd_ubuntu }}"
-  devops:
-    - name: antoine.bernier
-      shell: /bin/bash
-      pwd: "{{ vault_pwd_antoine_bernier }}"
-      ssh_key: 'https://gitlab.com/Antoine95.keys'
-    - name: maxime.bellec
-      shell: /bin/bash
-      pwd: "{{ vault_pwd_maxime_bellec }}"
-      ssh_key: 'https://gitlab.com/maxbellec.keys'
-    - name: quentin.madura
-      shell: /bin/bash
-      pwd: "{{ vault_pwd_quentin_madura }}"
-      ssh_key: 'https://gitlab.com/grimbsi.keys'
