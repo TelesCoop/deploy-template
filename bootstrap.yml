@@ -28,10 +28,6 @@
         file: employees.yaml
         name: employees
 
-    - name: display employees
-      debug:
-        msg: "{{ employees }}"
-
     - name: Create users
       user:
         name: "{{ item.name }}"
@@ -39,6 +35,17 @@
         groups: sudo,ssh-allowed
         append: true
       loop: "{{ employees.employees }}"
+      when: not item.remove|default(false)
+      loop_control:
+        label: "{{ item.name }}"
+
+    - name: Remove former users
+      user:
+        name: "{{ item.name }}"
+        force: true
+        state: absent
+      loop: "{{ employees.employees }}"
+      when: item.remove|default(false)
       loop_control:
         label: "{{ item.name }}"
 
