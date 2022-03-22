@@ -171,25 +171,3 @@
     owner: root
     group: root
     mode: '0644'
-
-- name: Create main user
-  user:
-    name: "{{ main_user }}"
-    uid: "{{ main_user_uid }}"
-
-- name: Generate /etc/ssh/ RSA host key
-  command: "ssh-keygen -q -t ed25519 -a 100 -f {{ identity_file_path }} -C \"\" -N \"\""
-  become_user: "{{ main_user }}"
-  args:
-    creates: "{{ identity_file_path }}"
-  register: new_ssh_key
-
-- name: WARNING ABOUT new ssh key
-  debug:
-    msg: |
-      IMPORTANT REMINDER
-
-      A new ssh key has been generated at {{ identity_file_path }}
-      - it should be added to the project deploy keys in Gitlab/Github
-      so that we can clone it.
-  when: new_ssh_key.changed
