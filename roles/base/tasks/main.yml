@@ -172,6 +172,11 @@
     group: root
     mode: '0644'
 
+- name: Create main user
+  user:
+    name: "{{ main_user }}"
+    uid: "{{ main_user_uid }}"
+
 - name: Generate /etc/ssh/ RSA host key
   command: "ssh-keygen -q -t ed25519 -a 100 -f {{ identity_file_path }} -C \"\" -N \"\""
   become_user: "{{ main_user }}"
