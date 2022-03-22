@@ -8,30 +8,31 @@
       - nginx
       - supervisor
 
-- name: Create main user
-  user:
-    name: "{{ main_user }}"
-    uid: "{{ main_user_uid }}"
-
 - name: Create directories and set permissions
   file:
     path: "{{ item.path }}"
     state: directory
-    owner: "{{ main_user }}"
+    owner: "{{ item.owner }}"
     mode: "{{ item.mode }}"
   loop:
     - path: "/{{ organization_slug }}"
       mode: '2775'
+      owner: "root"
     - path: "/{{ organization_slug }}/{{ project_slug }}"
       mode: '2775'
+      owner: "{{ main_user }}"
     - path: "/etc/{{ organization_slug }}"
       mode: '2775'
+      owner: "{{ main_user }}"
     - path: "/etc/{{ organization_slug }}/{{ project_slug }}"
       mode: '2775'
+      owner: "{{ main_user }}"
     - path: "{{ var_log_path }}"
       mode: '2770'
+      owner: "{{ main_user }}"
     - path: "{{ venv.path }}"
       mode: '0755'
+      owner: "{{ main_user }}"
 
 - name: Create backend venv
   command:
@@ -78,7 +79,6 @@
   become_user: "{{ main_user }}"
   register: clonecode
 
-# TODO only when code changes
 - name: Install python dependencies
   command:
     cmd: "{{ venv.path }}/bin/pip install -r requirements.txt"
