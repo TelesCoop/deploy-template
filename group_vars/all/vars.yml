@@ -9,8 +9,10 @@ public_hostnames:
   - "{{ project_slug }}.{{ organization_slug }}.fr"
 django_project_name: "{{ project_slug.replace('-', '_') }}_back"
 backend_repo: git@gitlab.com:{{ organization_slug }}/{{ project_slug }}/backend.git
+backend_branch: main
 frontend_repo:
   git@gitlab.com:{{ organization_slug }}/{{ project_slug }}/{{ project_slug }}_front.git
+frontend_branch: main
 backend_application_port: 8064  # must be unique for each project on the server
 backend_static_path: /{{ organization_slug }}/{{ project_slug}}/backend_static
 identity_file_path: /home/{{ main_user }}/.ssh/id_ed25519

@@ -12,6 +12,7 @@
   user:
     name: "{{ main_user }}"
     uid: "{{ main_user_uid }}"
+    shell: /bin/bash
 
 - name: Create directories and set permissions
   file:
@@ -106,7 +107,7 @@
     dest: "{{ backend_path }}"
     key_file: "{{ identity_file_path }}"
     force: true
-    version: main
+    version: "{{ backend_branch }}"
     accept_hostkey: true
   become_user: "{{ main_user }}"
   register: clonecode
