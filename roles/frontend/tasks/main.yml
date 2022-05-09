@@ -17,7 +17,7 @@
 
 - name: Update sources for node
   shell:
-    cmd: curl -fsSL https://deb.nodesource.com/setup_16.x | sudo -E bash - && touch /{{ organization_slug }}/{{ project_slug}}/node_setup
+    cmd: curl -fsSL https://deb.nodesource.com/setup_17.x | sudo -E bash - && touch /{{ organization_slug }}/{{ project_slug}}/node_setup
     warn: no
     creates: /{{ organization_slug }}/{{ project_slug}}/node_setup
 

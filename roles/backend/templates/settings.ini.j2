@@ -16,3 +16,8 @@ rollbar_access_token={{ vault_rollbar_access_token }}
 
 [staticfiles]
 static_root={{ backend_static_path }}
+
+[database]
+user={{ project_slug }}
+name={{ project_slug }}
+password = {{ database_password }}

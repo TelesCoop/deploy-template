@@ -13,3 +13,5 @@ backend_workers: 1
 database_backup:
   hour: 2
   minute: 0
+
+database_password: "{{ vault_database_password }}"
