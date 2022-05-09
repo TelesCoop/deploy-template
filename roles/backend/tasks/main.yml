@@ -3,10 +3,42 @@
 - name: Install misc packages
   apt:
     name:
-      - sqlite3
       - python3-venv
       - nginx
       - supervisor
+
+- name: Install sqlite
+  apt:
+    name:
+      - sqlite3
+  when: database_provider == "sqlite"
+
+- name: Install postgresql
+  apt:
+    name:
+      - postgresql
+      - postgresql-contrib
+      - libpq-dev
+  when: database_provider == "postgresql"
+
+- name: Install psycopg2 on system
+  pip:
+    name: psycopg2
+
+- name: Create a postgresql database
+  community.postgresql.postgresql_db:
+    name: "{{ project_slug }}"
+  become: yes
+  become_user: postgres
+
+- name: Create database user
+  community.postgresql.postgresql_user:
+    db: "{{ project_slug }}"
+    name: "{{ project_slug }}"
+    password: "{{ database_password }}"
+    priv: ALL
+  become: yes
+  become_user: postgres
 
 - name: Create main user
   user:
