@@ -5,11 +5,11 @@ allowed_hosts={{ ", ".join(public_hostnames) }},localhost
 [mail]
 api_key={{ vault_mailgun_api_key }}
 
-[backup]
-backup_access={{ vault_backup_access }}
-backup_secret={{ vault_backup_secret }}
-backup_bucket={{ project_slug }}-backup
-backup_region=eu-west-3
+[external_file_storage]
+access={{ vault_s3_access }}
+secret={{ vault_s3_secret }}
+bucket=moine
+endpoint_url=https://cellar-c2.services.clever-cloud.com
 
 [bugs]
 rollbar_access_token={{ vault_rollbar_access_token }}
