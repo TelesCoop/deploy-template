@@ -44,6 +44,7 @@
   user:
     name: "{{ main_user }}"
     uid: "{{ main_user_uid }}"
+    shell: /bin/bash
 
 - name: Create directories and set permissions
   file:

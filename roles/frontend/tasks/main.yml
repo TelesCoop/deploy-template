@@ -49,17 +49,30 @@
     src: frontend.env
     dest: "{{ frontend_path }}/.env"
 
+- name: Remove node_modules
+  file:
+    path: "{{ frontend_path }}/node_modules"
+    state: absent
+
 - name: Install project dependencies
   command:
-    cmd: "yarn install"
+    cmd: "yarn install --frozen-lockfile"
     chdir: "{{ frontend_path }}"
-  when: clonecode.changed
+  become_user: "{{ main_user }}"
+  # when: clonecode.changed
+  register: install_deps
+
+- debug: msg="{{ install_deps.stdout }}"
 
 - name: Build frontend code
   command:
     cmd: "yarn build"
     chdir: "{{ frontend_path }}"
-  when: clonecode.changed
+  become_user: "{{ main_user }}"
+  # when: clonecode.changed
+  register: build_code
+
+- debug: msg="{{ build_code.stdout }}"
 
 - name: Copy supervisord config
   template:
@@ -79,3 +92,17 @@
     name: "{{ project_slug }}-frontend"
     state: restarted
   # when: clonecode.changed
+
+- name: Debug yarn
+  command:
+    cmd: "which yarn"
+  register: debug_yarn1
+
+- debug: msg="{{ debug_yarn1.stdout }}"
+
+- name: Debug yarn2
+  command:
+    cmd: "yarn -v"
+  register: debug_yarn2
+
+- debug: msg="{{ debug_yarn2.stdout }}"
