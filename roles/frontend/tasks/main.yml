@@ -18,7 +18,7 @@
 - name: Update sources for node
   shell:
     cmd: curl -fsSL https://deb.nodesource.com/setup_17.x | sudo -E bash - && touch /{{ organization_slug }}/{{ project_slug}}/node_setup
-    warn: no
+    warn: false
     creates: /{{ organization_slug }}/{{ project_slug}}/node_setup
 
 - name: install node
@@ -30,7 +30,7 @@
 - name: install yarn globally
   community.general.npm:
     name: yarn
-    global: yes
+    global: true
 
 
 - name: get latest frontend code
@@ -59,14 +59,14 @@
     cmd: "yarn install --frozen-lockfile"
     chdir: "{{ frontend_path }}"
   become_user: "{{ main_user }}"
-  when: clonecode.changed
+  when: clonecode.changed or force_update
 
 - name: Build frontend code
   command:
     cmd: "yarn build"
     chdir: "{{ frontend_path }}"
   become_user: "{{ main_user }}"
-  when: clonecode.changed
+  when: clonecode.changed or force_update
   register: build_code
 
 - debug: msg="{{ build_code.stdout }}"
@@ -89,4 +89,4 @@
   supervisorctl:
     name: "{{ project_slug }}-frontend"
     state: restarted
-  when: clonecode.changed
+  when: clonecode.changed or force_update

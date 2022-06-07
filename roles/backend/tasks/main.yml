@@ -28,7 +28,7 @@
 - name: Create a postgresql database
   community.postgresql.postgresql_db:
     name: "{{ project_slug }}"
-  become: yes
+  become: true
   become_user: postgres
 
 - name: Create database user
@@ -37,7 +37,7 @@
     name: "{{ project_slug }}"
     password: "{{ database_password }}"
     priv: ALL
-  become: yes
+  become: true
   become_user: postgres
 
 - name: Create main user
@@ -115,24 +115,24 @@
   command:
     cmd: "{{ venv.path }}/bin/pip install -r requirements.txt"
     chdir: "{{ backend_path }}"
-  when: clonecode.changed
+  when: clonecode.changed or force_update
 
 - name: run migrations
   command:
     cmd: "/usr/local/bin/{{ project_slug }}-ctl migrate"
   become_user: "{{ main_user }}"
   become: true
-  when: clonecode.changed
+  when: clonecode.changed or force_update
 
 - name: collect backend static files
   command:
     cmd: "/usr/local/bin/{{ project_slug }}-ctl collectstatic --no-input"
-  when: clonecode.changed
+  when: clonecode.changed or force_update
 
 - name: Restart {{ project_slug }} supervisor
   supervisorctl:
     name: "{{ project_slug }}"
     state: restarted
-  when: clonecode.changed
+  when: clonecode.changed or force_update
 
 - include: cron.yml
