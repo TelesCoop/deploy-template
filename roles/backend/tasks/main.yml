@@ -150,7 +150,7 @@
 /{{ organization_slug }}/{{ project_slug }}/backups/backup.sql"
   become_user: "{{ main_user }}"
 
-- name: Store file into /tmp/fetched/host.example.com/tmp/somefile
+- name: Copy production dump locally
   ansible.builtin.fetch:
     src: "/{{ organization_slug }}/{{ project_slug }}/backups/backup.sql"
     dest: "{{ lookup('env','HOME') }}/backups/\
