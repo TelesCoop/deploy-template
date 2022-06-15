@@ -2,9 +2,6 @@
 secret_key={{ vault_django_secret_key }}
 allowed_hosts={{ ", ".join(public_hostnames) }},localhost
 
-[mail]
-api_key={{ vault_mailgun_api_key }}
-
 [external_file_storage]
 access={{ vault_s3_access }}
 secret={{ vault_s3_secret }}

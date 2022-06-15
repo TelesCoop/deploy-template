@@ -50,21 +50,31 @@
   file:
     path: "{{ item.path }}"
     state: directory
-    owner: "{{ main_user }}"
+    owner: "{{ item.owner }}"
     mode: "{{ item.mode }}"
   loop:
     - path: "/{{ organization_slug }}"
       mode: '2775'
+      owner: root
     - path: "/{{ organization_slug }}/{{ project_slug }}"
       mode: '2775'
+      owner: "{{ main_user }}"
     - path: "/etc/{{ organization_slug }}"
       mode: '2775'
+      owner: "{{ main_user }}"
     - path: "/etc/{{ organization_slug }}/{{ project_slug }}"
       mode: '2775'
+      owner: "{{ main_user }}"
     - path: "{{ var_log_path }}"
       mode: '2770'
+      owner: "{{ main_user }}"
     - path: "{{ venv.path }}"
       mode: '0755'
+      owner: "{{ main_user }}"
+    - path: "/{{ organization_slug }}/{{ project_slug }}/backups/"
+      mode: '0755'
+      owner: "{{ main_user }}"
+
 
 - name: Create backend venv
   command:
@@ -134,5 +144,17 @@
     name: "{{ project_slug }}"
     state: restarted
   when: clonecode.changed or force_update
+
+- name: Backup database
+  ansible.builtin.shell: "pg_dump {{ project_slug }} > \
+/{{ organization_slug }}/{{ project_slug }}/backups/backup.sql"
+  become_user: "{{ main_user }}"
+
+- name: Store file into /tmp/fetched/host.example.com/tmp/somefile
+  ansible.builtin.fetch:
+    src: "/{{ organization_slug }}/{{ project_slug }}/backups/backup.sql"
+    dest: "{{ lookup('env','HOME') }}/backups/\
+{{ ansible_date_time.iso8601 }}_{{ project_slug }}_backup.sql"
+    flat: true
 
 - include: cron.yml
