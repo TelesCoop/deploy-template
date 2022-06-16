@@ -17,7 +17,8 @@
 
 - name: Update sources for node
   shell:
-    cmd: curl -fsSL https://deb.nodesource.com/setup_17.x | sudo -E bash - && touch /{{ organization_slug }}/{{ project_slug}}/node_setup
+    cmd: curl -fsSL https://deb.nodesource.com/setup_17.x \
+      | sudo -E bash - && touch /{{ organization_slug }}/{{ project_slug}}/node_setup
     warn: false
     creates: /{{ organization_slug }}/{{ project_slug}}/node_setup
 
@@ -59,14 +60,14 @@
     cmd: "yarn install --frozen-lockfile"
     chdir: "{{ frontend_path }}"
   become_user: "{{ main_user }}"
-  when: clonecode.changed or force_update
+  when: clonecode.changed or force_update is defined
 
 - name: Build frontend code
   command:
     cmd: "yarn build"
     chdir: "{{ frontend_path }}"
   become_user: "{{ main_user }}"
-  when: clonecode.changed or force_update
+  when: clonecode.changed or force_update is defined
   register: build_code
 
 - debug: msg="{{ build_code.stdout }}"
@@ -89,4 +90,4 @@
   supervisorctl:
     name: "{{ project_slug }}-frontend"
     state: restarted
-  when: clonecode.changed or force_update
+  when: clonecode.changed or force_update is defined
