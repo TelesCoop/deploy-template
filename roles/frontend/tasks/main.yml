@@ -54,6 +54,7 @@
   file:
     path: "{{ frontend_path }}/node_modules"
     state: absent
+  when: clonecode.changed or force_update is defined
 
 - name: Install project dependencies
   command:
