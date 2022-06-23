@@ -10,12 +10,18 @@ upstream app_frontend_{{ project_slug }} {
 
 server {
 
-    listen 80;
+    listen 443 ssl; # managed by Certbot
+    ssl_certificate /etc/letsencrypt/live/labase.anct.gouv.fr/fullchain.pem; # managed by Certbot
+    ssl_certificate_key /etc/letsencrypt/live/labase.anct.gouv.fr/privkey.pem; # managed by Certbot
+    include /etc/letsencrypt/options-ssl-nginx.conf; # managed by Certbot
+    ssl_dhparam /etc/letsencrypt/ssl-dhparams.pem; # managed by Certbot
 
     server_name {{ " ".join(public_hostnames) }};
 
     access_log /var/log/nginx/access_{{ public_hostnames[0].replace('.', '_') }}.log;
     error_log /var/log/nginx/error_{{ public_hostnames[0].replace('.', '_') }}.log;
+
+    client_max_body_size 20M;
 
     # http://stackoverflow.com/questions/15238506/djangos-suspiciousoperation-invalid-http-host-header
     # Deny illegal Host headers
@@ -37,6 +43,7 @@ server {
             proxy_set_header   X-Real-IP $remote_addr;
             proxy_set_header   X-Forwarded-For $proxy_add_x_forwarded_for;
             proxy_set_header   X-Forwarded-Host $server_name;
+            proxy_set_header   X-Forwarded-Proto $scheme;
         }
     {% endfor %}
 
@@ -49,4 +56,24 @@ server {
         proxy_set_header   X-Forwarded-For $proxy_add_x_forwarded_for;
         proxy_set_header   X-Forwarded-Host $server_name;
     }
+}
+
+server {
+    listen 80;
+    server_name labase.anct.gouv.fr labase.tlscp.fr;
+
+    if ($host = labase.tlscp.fr) {
+        return 301 https://$host$request_uri;
+    } # managed by Certbot
+
+
+    if ($host = labase.anct.gouv.fr) {
+        return 301 https://$host$request_uri;
+    } # managed by Certbot
+
+    if ($host = moine.tlscp.fr) {
+        return 301 https://labase.anct.gouv.fr$request_uri;
+    } # managed by Certbot
+
+    return 404; # managed by Certbot
 }
