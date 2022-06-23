@@ -5,7 +5,8 @@ project_slug: moine
 main_user: moine
 main_user_uid: 1009  # must be unique for each project on the server
 public_hostnames:
-  - moine.tlscp.fr
+  - labase.anct.gouv.fr
+  - labase.tlscp.fr
 django_project_name: "{{ project_slug.replace('-', '_') }}_back"
 backend_repo: git@gitlab.com:telescoop-public/mes-outils-inclusion-numerique/backend.git
 frontend_repo: git@gitlab.com:telescoop-public/mes-outils-inclusion-numerique/frontend.git
