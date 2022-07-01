@@ -1,0 +1,12 @@
+---
+
+backend_application_port: 8001  # must be unique for each project on the same server
+frontend_application_port: 3001  # must be unique for each project on the same server
+environment_suffix: "_preprod"
+project_slug_for_environment: "{{ project_slug }}{{ environment_suffix }}"
+project_dir: "{{project_base_dir}}{{ environment_suffix }}"
+backend_static_path: "{{ project_dir }}/backend_static"
+var_log_path: /var/log/{{ organization_slug }}/{{ project_slug_for_environment }}
+
+frontend_branch: dev
+backend_branch: dev

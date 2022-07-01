@@ -27,14 +27,14 @@
 
 - name: Create a postgresql database
   community.postgresql.postgresql_db:
-    name: "{{ project_slug }}"
+    name: "{{ project_slug_for_environment }}"
   become: true
   become_user: postgres
 
 - name: Create database user
   community.postgresql.postgresql_user:
-    db: "{{ project_slug }}"
-    name: "{{ project_slug }}"
+    db: "{{ project_slug_for_environment }}"
+    name: "{{ project_slug_for_environment }}"
     password: "{{ database_password }}"
     priv: ALL
   become: true
@@ -56,13 +56,13 @@
     - path: "/{{ organization_slug }}"
       mode: '2775'
       owner: root
-    - path: "/{{ organization_slug }}/{{ project_slug }}"
+    - path: "/{{ organization_slug }}/{{ project_slug_for_environment }}"
       mode: '2775'
       owner: "{{ main_user }}"
     - path: "/etc/{{ organization_slug }}"
       mode: '2775'
       owner: "{{ main_user }}"
-    - path: "/etc/{{ organization_slug }}/{{ project_slug }}"
+    - path: "/etc/{{ organization_slug }}/{{ project_slug_for_environment }}"
       mode: '2775'
       owner: "{{ main_user }}"
     - path: "{{ var_log_path }}"
@@ -71,7 +71,7 @@
     - path: "{{ venv.path }}"
       mode: '0755'
       owner: "{{ main_user }}"
-    - path: "/{{ organization_slug }}/{{ project_slug }}/backups/"
+    - path: "/{{ organization_slug }}/{{ project_slug_for_environment }}/backups/"
       mode: '0755'
       owner: "{{ main_user }}"
 
@@ -83,16 +83,16 @@
   become: true
   become_user: "{{ main_user }}"
 
-- name: Install {{ project_slug }}-ctl
+- name: Install {{ project_slug_for_environment }}-ctl
   template:
     src: backend-ctl.j2
-    dest: "/usr/local/bin/{{ project_slug }}-ctl"
+    dest: "/usr/local/bin/{{ project_slug_for_environment }}-ctl"
     mode: "0755"
 
 - name: Copy django settings
   template:
     src: settings.ini.j2
-    dest: "/etc/{{ organization_slug }}/{{ project_slug }}/settings.ini"
+    dest: "{{ backend_settings_path }}"
     owner: "{{ main_user }}"
     group: devops
     mode: 0660
@@ -100,14 +100,14 @@
 - name: Copy supervisord config
   template:
     src: backend-supervisor.conf.j2
-    dest: "{{ supervisor_conf }}/{{ project_slug }}.conf"
+    dest: "{{ supervisor_conf }}/{{ project_slug_for_environment }}.conf"
     owner: root
     group: root
     mode: 0644
 
-- name: Install {{ project_slug }} supervisor
+- name: Install {{ project_slug_for_environment }} supervisor
   supervisorctl:
-    name: "{{ project_slug }}"
+    name: "{{ project_slug_for_environment }}"
     state: present
 
 - name: get latest code
@@ -116,7 +116,7 @@
     dest: "{{ backend_path }}"
     key_file: "{{ identity_file_path }}"
     force: true
-    version: main
+    version: "{{ backend_branch }}"
     accept_hostkey: true
   become_user: "{{ main_user }}"
   register: clonecode
@@ -129,14 +129,14 @@
 
 - name: run migrations
   command:
-    cmd: "/usr/local/bin/{{ project_slug }}-ctl migrate"
+    cmd: "/usr/local/bin/{{ project_slug_for_environment }}-ctl migrate"
   become_user: "{{ main_user }}"
   become: true
   when: clonecode.changed or force_update is defined
 
 - name: collect backend static files
   command:
-    cmd: "/usr/local/bin/{{ project_slug }}-ctl collectstatic --no-input"
+    cmd: "/usr/local/bin/{{ project_slug_for_environment }}-ctl collectstatic --no-input"
   when: clonecode.changed or force_update is defined
 
 - name: Restart {{ project_slug }} supervisor
@@ -146,15 +146,17 @@
   when: clonecode.changed or force_update is defined
 
 - name: Backup database
-  ansible.builtin.shell: "pg_dump {{ project_slug }} > \
-/{{ organization_slug }}/{{ project_slug }}/backups/backup.sql"
+  ansible.builtin.shell: "pg_dump {{ project_slug_for_environment }} > \
+/{{ organization_slug }}/{{ project_slug_for_environment }}/backups/backup.sql"
   become_user: "{{ main_user }}"
+  when: inventory_hostname == "prod"
 
 - name: Copy production dump locally
   ansible.builtin.fetch:
-    src: "/{{ organization_slug }}/{{ project_slug }}/backups/backup.sql"
+    src: "/{{ organization_slug }}/{{ project_slug_for_environment }}/backups/backup.sql"
     dest: "{{ lookup('env','HOME') }}/backups/\
-{{ ansible_date_time.iso8601 }}_{{ project_slug }}_backup.sql"
+{{ ansible_date_time.iso8601 }}_{{ project_slug_for_environment }}_backup.sql"
     flat: true
+  when: inventory_hostname == "prod"
 
 - include: cron.yml

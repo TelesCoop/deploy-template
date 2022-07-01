@@ -1,2 +1,5 @@
 [prod]
 moine.tlscp.fr:42722 ansible_user=ubuntu
+
+# [preprod]
+# moine.tlscp.fr:42722 ansible_user=ubuntu

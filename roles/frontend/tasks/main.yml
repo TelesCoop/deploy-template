@@ -8,7 +8,7 @@
 - name: Copy nginx config
   template:
     src: nginx.conf.j2
-    dest: /etc/nginx/sites-enabled/{{ project_slug }}
+    dest: /etc/nginx/sites-enabled/{{ project_slug_for_environment }}
     owner: root
     group: root
     mode: 0644
@@ -41,7 +41,7 @@
     key_file: "{{ identity_file_path }}"
     accept_hostkey: true
     force: true
-    version: main
+    version: "{{ frontend_branch }}"
   become_user: "{{ main_user }}"
   register: clonecode
 
@@ -77,18 +77,18 @@
 - name: Copy supervisord config
   template:
     src: frontend-supervisor.conf.j2
-    dest: "{{ supervisor_conf }}/{{ project_slug }}_frontend.conf"
+    dest: "{{ supervisor_conf }}/{{ project_slug_for_environment }}_frontend.conf"
     owner: root
     group: root
     mode: 0644
 
-- name: Install {{ project_slug }} supervisor
+- name: Install {{ project_slug_for_environment }} supervisor
   supervisorctl:
-    name: "{{ project_slug }}-frontend"
+    name: "{{ project_slug_for_environment }}-frontend"
     state: present
 
 - name: Restart {{ project_slug }} supervisor
   supervisorctl:
-    name: "{{ project_slug }}-frontend"
+    name: "{{ project_slug_for_environment }}-frontend"
     state: restarted
   when: clonecode.changed or force_update is defined

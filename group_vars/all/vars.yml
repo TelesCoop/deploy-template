@@ -7,12 +7,12 @@ main_user_uid: 1009  # must be unique for each project on the server
 public_hostnames:
   - labase.anct.gouv.fr
   - labase.tlscp.fr
+  - preprod.labase.anct.gouv.fr
+  - preprod.labase.tlscp.fr
 django_project_name: "{{ project_slug.replace('-', '_') }}_back"
 backend_repo: git@gitlab.com:telescoop-public/mes-outils-inclusion-numerique/backend.git
 frontend_repo: git@gitlab.com:telescoop-public/mes-outils-inclusion-numerique/frontend.git
-backend_application_port: 8000  # must be unique for each project on the same server
-frontend_application_port: 3000  # must be unique for each project on the same server
-backend_static_path: /{{ organization_slug }}/{{ project_slug}}/backend_static
+project_base_dir: /{{ organization_slug }}/{{ project_slug}}
 identity_file_path: /home/{{ main_user }}/.ssh/id_ed25519
 var_log_path: /var/log/{{ organization_slug }}/{{ project_slug }}
 supervisor_conf: /etc/supervisor/conf.d

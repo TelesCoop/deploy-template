@@ -1,11 +1,10 @@
 ---
 
-var_log_path: /var/log/{{ organization_slug }}/{{ project_slug }}
-
 venv:
-  path: /usr/local/{{ organization_slug }}/{{ project_slug }}/backend/venv
+  path: /usr/local/{{ organization_slug }}/{{ project_slug_for_environment }}/backend/venv
 
-backend_path: /{{ organization_slug }}/{{ project_slug}}/backend
+backend_path: /{{ organization_slug }}/{{ project_slug_for_environment }}/backend
+backend_settings_path: /etc/{{ organization_slug }}/{{ project_slug_for_environment }}/settings.ini
 
 backend_timeout: 30
 backend_workers: 1
