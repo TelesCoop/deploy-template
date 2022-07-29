@@ -24,7 +24,7 @@
   register: hba_files
   when: database_provider == "postgresql"
 
-- name: Log in to postgres is based on password
+- name: Configure postgres authentication for using passwords
   ansible.builtin.lineinfile:
     path: "{{ item.path }}"
     regexp: '^(local\s+all\s+all\s+)peer$'
