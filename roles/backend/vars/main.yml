@@ -3,7 +3,8 @@
 venv:
   path: /usr/local/{{ organization_slug }}/{{ project_slug }}/backend/venv
 
-backend_path: /{{ organization_slug }}/{{ project_slug}}/backend
+backend_path: "{{ project_dir }}/backend"
+backend_settings_path: /etc/{{ organization_slug }}/{{ project_slug }}/settings.ini
 supervisor_conf: /etc/supervisor/conf.d
 
 backend_timeout: 30

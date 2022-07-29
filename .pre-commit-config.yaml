@@ -1,6 +1,6 @@
 repos:
   - repo: https://github.com/jphppd/pre-commit-hooks.git
-    rev: 0.0.1
+    rev: 0.0.12
     hooks:
       - id: git-check-mailmap
       - id: git-forbid-binary
@@ -25,7 +25,8 @@ repos:
       - id: generic-en-dashes-forbid
       - id: generic-en-dashes-remove
       - id: ansible-lint
-      - id: jinja-lint
+      # - id: jinja-lint
+      # commented until issue is fixed https://github.com/motet-a/jinjalint/issues/32
       - id: json-check-syntax
       - id: json-pretty-format
       - id: markdown-lint
@@ -36,7 +37,6 @@ repos:
       - id: shell-check
       - id: shell-script-must-have-extension
       - id: shell-script-must-not-have-extension
-      - id: shell-format
       - id: shell-bashate
       - id: shell-beautysh
       - id: toml-check-syntax
