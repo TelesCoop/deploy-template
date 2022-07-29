@@ -1,9 +1,0 @@
----
-
-- name: "daily database backup"
-  cron:
-    user: "{{ main_user }}"
-    name: "daily database backup"
-    hour: '{{ database_backup.hour }}'
-    minute: '{{ database_backup.minute }}'
-    job: "{{ venv.path }}/bin/python {{ backend_path }}/manage.py backup_db backup"
