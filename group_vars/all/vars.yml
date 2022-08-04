@@ -10,6 +10,7 @@ backend_identity_file_path: /home/{{ main_user }}/.ssh/id_ed25519_backend
 frontend_identity_file_path: /home/{{ main_user }}/.ssh/id_ed25519_frontend
 var_log_path: /var/log/{{ organization_slug }}/{{ project_slug }}
 project_base_dir: /{{ organization_slug }}/{{ base_project_slug }}
+supervisor_conf: /etc/supervisor/conf.d
 
 # if using postgresql database, you will need to
 # - define the var `database_password`
