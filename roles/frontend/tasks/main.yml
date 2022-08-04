@@ -46,7 +46,7 @@
   when: frontend_new_ssh_key.changed
 
 - name: Get new ssh key contents
-  command: "cat {{ identity_file_path }}.pub"
+  command: "cat {{ frontend_identity_file_path }}.pub"
   register: command_output
   when: frontend_new_ssh_key.changed
 
@@ -122,10 +122,10 @@
         cmd: "yarn build"
         chdir: "{{ frontend_path }}"
       register: build_code
-      when: frontend_mode == 'SSR' and (clonecode.changed or force_update is defined)
+      when: clonecode.changed or force_update is defined
 
     - debug: msg="{{ build_code.stdout }}"
-      when: frontend_mode == 'SSR' clonecode.changed
+      when: clonecode.changed
 
     - name: Copy supervisord config to {{ supervisor_conf }}/{{ project_slug }}_backend.conf
       template:

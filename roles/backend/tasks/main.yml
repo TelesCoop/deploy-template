@@ -36,6 +36,7 @@
 - name: Install psycopg2 on system
   pip:
     name: psycopg2
+  when: database_provider == "postgresql"
 
 - name: Create database {{ project_slug }}
   community.postgresql.postgresql_db:
@@ -53,6 +54,7 @@
     priv: ALL
   become: true
   become_user: postgres
+  when: database_provider == "postgresql"
 
 - name: Create main user {{ main_user }}
   user:
@@ -109,7 +111,7 @@
 
 - name: Copy supervisord config to {{ supervisor_conf }}/{{ project_slug }}_backend.conf
   template:
-    src: supervisor.conf.j2
+    src: backend-supervisor.conf.j2
     dest: "{{ supervisor_conf }}/{{ project_slug }}_backend.conf"
     owner: root
     group: root
@@ -151,7 +153,7 @@
   git:
     repo: '{{ backend_repo }}'
     dest: "{{ backend_path }}"
-    key_file: "{{ identity_file_path }}"
+    key_file: "{{ backend_identity_file_path }}"
     force: true
     version: "{{ backend_branch }}"
     accept_hostkey: true
@@ -162,25 +164,25 @@
   command:
     cmd: "{{ venv.path }}/bin/pip install -r requirements.txt"
     chdir: "{{ backend_path }}"
-  when: clonecode.changed
+  when: clonecode.changed or force_update is defined
 
 - name: Run migrations
   command:
     cmd: "/usr/local/bin/{{ project_slug }}-ctl migrate"
   become: true
   become_user: "{{ main_user }}"
-  when: clonecode.changed
+  when: clonecode.changed or force_update is defined
 
 - name: Collect backend static files
   command:
     cmd: "/usr/local/bin/{{ project_slug }}-ctl collectstatic --no-input"
-  when: clonecode.changed
+  when: clonecode.changed or force_update is defined
 
 - name: Restart {{ project_slug }} supervisor
   supervisorctl:
     name: "{{ project_slug }}"
     state: restarted
-  when: clonecode.changed
+  when: clonecode.changed or force_update is defined
 
 - name: "daily database backup"
   cron:
