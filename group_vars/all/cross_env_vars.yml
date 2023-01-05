@@ -1,6 +1,6 @@
 ---
 
-support_mail_addr: contact@{{ organization_slug }}.fr
+support_mail_addr: contact@telescoop.fr
 
 sshd:
   port: 42722
