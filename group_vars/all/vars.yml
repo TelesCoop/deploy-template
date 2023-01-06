@@ -1,7 +1,7 @@
 organization_slug: telescoop
 base_project_slug: my-project
 main_user: my-project
-main_user_uid: 1042  # TODO must be unique for each project on the server
+main_user_uid: 10042  # TODO must be unique for each project on the server
 django_project_name: "{{ base_project_slug.replace('-', '_') }}_back"
 backend_repo: git@gitlab.com:{{ organization_slug }}/{{ base_project_slug }}/backend.git
 frontend_repo:
