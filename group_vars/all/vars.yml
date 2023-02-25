@@ -19,3 +19,6 @@ database_provider: postgresql  # sqlite or postgresql
 
 # can be SSR or static
 frontend_mode: SSR
+
+# Set your support email
+support_mail_addr: "john@doe.fr"
