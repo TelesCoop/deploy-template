@@ -37,9 +37,9 @@ Ce considère donc :
 
 Pour un nouveau serveur ou projet, ils sont à lancer dans cet ordre.
 
-- `bootstrap` : Gère les accès en ssh. À lancer en premier sur un nouveau serveur.
-  Lancer avec `ansible-playbook bootstrap.yml`.
-  N'est pas nécessaire en cas d'ajout d'un projet sur le même serveur.
+- Si c'est un nouveau serveur, utiliser le playbook de
+  [ce dépôt](https://github.com/TelesCoop/ansible-ssh-config)
+  d'abord pour la configuration ssh
 
 - `base` : Installe les dépendances devops du projet. Configure les mises à jour
   automatiques et les roulements de log nginx
