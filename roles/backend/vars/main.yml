@@ -3,8 +3,8 @@
 venv:
   path: /usr/local/{{ organization_slug }}/{{ project_slug }}/backend/venv
 
-backend_path: /{{ organization_slug }}/{{ project_slug}}/backend
-supervisor_conf: /etc/supervisor/conf.d
+backend_path: "{{ project_dir }}/backend"
+backend_settings_path: /etc/{{ organization_slug }}/{{ project_slug }}/settings.ini
 
 backend_timeout: 30
 backend_workers: 1
@@ -12,3 +12,5 @@ backend_workers: 1
 database_backup:
   hour: 2
   minute: 0
+
+database_password: "{{ vault_database_password }}"

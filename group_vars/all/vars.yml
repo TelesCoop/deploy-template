@@ -1,17 +1,21 @@
----
-
 organization_slug: telescoop
-project_slug: my-project
+base_project_slug: my-project
 main_user: my-project
-main_user_uid: 1040  # must be unique for each project on the server
-public_hostnames:
-  - app.{{ project_slug }}.com
-  - "{{ project_slug }}.{{ organization_slug }}.fr"
-django_project_name: "{{ project_slug.replace('-', '_') }}_back"
-backend_repo: git@gitlab.com:{{ organization_slug }}/{{ project_slug }}/backend.git
+main_user_uid: 10042  # TODO must be unique for each project on the server
+django_project_name: "{{ base_project_slug.replace('-', '_') }}_back"
+backend_repo: git@gitlab.com:{{ organization_slug }}/{{ base_project_slug }}/backend.git
 frontend_repo:
-  git@gitlab.com:{{ organization_slug }}/{{ project_slug }}/{{ project_slug }}_front.git
-backend_application_port: 8064  # must be unique for each project on the server
-backend_static_path: /{{ organization_slug }}/{{ project_slug}}/backend_static
-identity_file_path: /home/{{ main_user }}/.ssh/id_ed25519
+  git@gitlab.com:{{ organization_slug }}/{{ base_project_slug }}/{{ base_project_slug }}_front.git
+backend_identity_file_path: /home/{{ main_user }}/.ssh/id_ed25519_backend
+frontend_identity_file_path: /home/{{ main_user }}/.ssh/id_ed25519_frontend
 var_log_path: /var/log/{{ organization_slug }}/{{ project_slug }}
+project_base_dir: /{{ organization_slug }}/{{ base_project_slug }}
+supervisor_conf: /etc/supervisor/conf.d
+
+# if using postgresql database, you will need to
+# - define the var `database_password`
+# - install an additional Ansible module `ansible-galaxy collection install community.postgresql`
+database_provider: postgresql  # sqlite or postgresql
+
+# can be SSR or static
+frontend_mode: SSR
