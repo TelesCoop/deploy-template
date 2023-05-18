@@ -3,9 +3,9 @@ base_project_slug: my-project
 main_user: my-project
 main_user_uid: 10042  # TODO must be unique for each project on the server
 django_project_name: "{{ base_project_slug.replace('-', '_') }}_back"
-backend_repo: git@gitlab.com:{{ organization_slug }}/{{ base_project_slug }}/backend.git
+backend_repo: git@github.com:{{ organization_slug }}/{{ base_project_slug }}/backend.git
 frontend_repo:
-  git@gitlab.com:{{ organization_slug }}/{{ base_project_slug }}/{{ base_project_slug }}_front.git
+  git@github.com:{{ organization_slug }}/{{ base_project_slug }}/{{ base_project_slug }}_front.git
 backend_identity_file_path: /home/{{ main_user }}/.ssh/id_ed25519_backend
 frontend_identity_file_path: /home/{{ main_user }}/.ssh/id_ed25519_frontend
 var_log_path: /var/log/{{ organization_slug }}/{{ project_slug }}

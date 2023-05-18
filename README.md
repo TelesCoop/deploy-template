@@ -30,7 +30,7 @@ Ce considère donc :
 - Que vous utilisez `gunicorn` comme outil `wsgi` pour le backend. À adapter
   dans `roles/backend/teamplte/supervisor.conf.j2`.
 - Que vous utilisez
-  [telescoop-backup](https://gitlab.com/telescoop-public/django-apps/telescoop-backup)
+  [telescoop-backup](https://github.com/TelesCoop/telescoop-backup)
   pour sauvegarder votre base de donnée. À adapter dans `roles/backend/tasks/main.yml`.
 
 ## Les différents rôles/playbook
