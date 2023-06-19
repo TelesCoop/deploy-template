@@ -77,7 +77,7 @@
       owner: "{{ main_user }}"
     - path: "/etc/{{ organization_slug }}"
       mode: '2775'
-      owner: "{{ main_user }}"
+      owner: "{{ root }}"
     - path: "/etc/{{ organization_slug }}/{{ project_slug }}"
       mode: '2775'
       owner: "{{ main_user }}"
