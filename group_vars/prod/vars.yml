@@ -12,4 +12,4 @@ backend_static_path: "{{ project_dir }}/backend_static"
 frontend_branch: main
 backend_branch: main
 
-environment_name: preprod
+environment_name: production
