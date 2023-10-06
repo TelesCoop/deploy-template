@@ -4,9 +4,11 @@ upstream app_servers_{{ project_slug }} {
   server 127.0.0.1:{{ backend_application_port }};
 }
 
+{% if frontend_mode == "SSR"%}
 upstream app_frontend_{{ project_slug }} {
   server 127.0.0.1:{{ frontend_application_port }};
 }
+{% endif %}
 
 server {
 
