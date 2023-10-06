@@ -18,7 +18,7 @@
 - name: Update sources for node
   shell:
     cmd: >
-            curl -fsSL https://deb.nodesource.com/setup_17.x
+            curl -fsSL https://deb.nodesource.com/setup_18.x
             | sudo -E bash -
             && touch /{{ organization_slug }}/{{ project_slug}}/node_setup
     warn: false
@@ -34,6 +34,11 @@
   community.general.npm:
     name: yarn
     global: true
+
+- name: Install n (Manager for node versions)
+  command:
+    cmd: yarn install -g n
+    creates: "/usr/local/n/"
 
 - name: Generate frontend /etc/ssh/ RSA host key
   command: "ssh-keygen -q -t ed25519 -a 100 -f {{ frontend_identity_file_path }} -C \"\" -N \"\""
@@ -73,6 +78,16 @@
   become_user: "{{ main_user }}"
   register: clonecode
 
+- name: Get node_version
+  shell: "cat {{ frontend_path }}/.nvmrc"
+  register: node_version
+
+- name: Install node with n
+  command:
+    cmd: "n {{ node_version.stdout }}"
+    creates: "/usr/local/n/versions/node/{{ node_version.stdout }}"
+
+
 - name: add environment variable file
   template:
     src: frontend.env
@@ -80,7 +95,7 @@
 
 - name: Install project node dependencies with yarn
   command:
-    cmd: "yarn install --frozen-lockfile"
+    cmd: "n exec {{ node_version.stdout }} yarn install --frozen-lockfile"
     chdir: "{{ frontend_path }}"
   become_user: "{{ main_user }}"
   when: clonecode.changed or force_update is defined
@@ -91,7 +106,7 @@
   block:
     - name: Build frontend code for static rendering
       command:
-        cmd: "yarn generate"
+        cmd: "n exec {{ node_version.stdout }} yarn generate"
         chdir: "{{ frontend_path }}"
       when: clonecode.changed or force_update is defined
       register: build_code
@@ -126,7 +141,7 @@
   block:
     - name: Build frontend code for SSR
       command:
-        cmd: "yarn build"
+        cmd: "n exec {{ node_version.stdout }} yarn build"
         chdir: "{{ frontend_path }}"
       register: build_code
       when: clonecode.changed or force_update is defined
