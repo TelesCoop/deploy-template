@@ -111,7 +111,7 @@
       register: build_code
 
     - debug: msg="{{ build_code.stdout }}"
-      when: clonecode.changed
+      when: clonecode.changed  or force_update is defined
 
     - name: Update fontend static folder
       file:
@@ -151,7 +151,7 @@
       when: clonecode.changed or force_update is defined
 
     - debug: msg="{{ build_code.stdout }}"
-      when: clonecode.changed
+      when: clonecode.changed or force_update is defined
 
     - name: Copy supervisord config to {{ supervisor_conf }}/{{ project_slug }}_backend.conf
       template:
