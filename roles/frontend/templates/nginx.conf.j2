@@ -25,6 +25,11 @@ server {
         return 444;
     }
 
+    # gzip compression
+    gzip on;
+    gzip_vary on;
+    gzip_types application/json application/javascript application/xml text/css text/javascript text/plain text/xml image/svg+xml;
+
     # backend static stuff
     location /static  {
         autoindex off;

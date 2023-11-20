@@ -6,7 +6,7 @@ project_slug: "{{ base_project_slug }}{{ environment_suffix }}"
 public_hostnames:
   - app.{{ project_slug }}.com
   - "{{ project_slug }}.{{ organization_slug }}.fr"
-project_dir: {{project_base_dir}}{{ environment_suffix }}
+project_dir: "{{project_base_dir}}{{ environment_suffix }}"
 backend_static_path: "{{ project_dir }}/backend_static"
 
 frontend_branch: main
