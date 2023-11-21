@@ -8,8 +8,8 @@ api_key={{ vault_mailgun_api_key }}
 [backup]
 backup_access={{ vault_backup_access }}
 backup_secret={{ vault_backup_secret }}
-backup_bucket={{ project_slug }}-backup
-backup_region=eu-west-3
+backup_bucket={{ organization_slug }}{{ project_slug }}
+backup_host=s3.fr-par.scw.cloud
 
 [bugs]
 rollbar_access_token={{ vault_rollbar_access_token }}
