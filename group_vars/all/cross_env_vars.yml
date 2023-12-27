@@ -4,9 +4,3 @@ support_mail_addr: contact@{{ organization_slug }}.fr
 
 sshd:
   port: 42722
-
-users:
-  root:
-    pwd: "{{ vault_pwd_root }}"
-  ubuntu:
-    pwd: "{{ vault_pwd_ubuntu }}"
