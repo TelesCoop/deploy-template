@@ -109,10 +109,10 @@
     group: devops
     mode: 0660
 
-- name: Copy supervisord config to {{ supervisor_conf }}/{{ project_slug }}_backend.conf
+- name: Copy supervisord config to {{ supervisor_conf }}/{{ project_slug }}-backend.conf
   template:
     src: backend-supervisor.conf.j2
-    dest: "{{ supervisor_conf }}/{{ project_slug }}_backend.conf"
+    dest: "{{ supervisor_conf }}/{{ project_slug }}-backend.conf"
     owner: root
     group: root
     mode: 0644
