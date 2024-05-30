@@ -113,7 +113,7 @@
     - debug: msg="{{ build_code.stdout }}"
       when: clonecode.changed  or force_update is defined
 
-    - name: Update fontend static folder
+    - name: Update frontend static folder
       file:
         path: "{{ frontend_static_path }}"
         state: "{{ item }}"
