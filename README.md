@@ -83,9 +83,9 @@ chaque commit.
 
 - modifier le fichier `hosts` pour indiquer sur quel nom de domain ou IP se trouve
   le serveur à manager.
-- modifier les variables dans `group_vars/vars.yml`, notamment
+- modifier les variables dans `group_vars/all/vars.yml`, notamment
   `organization_slug`, `project_slug`, `main_user`, `public_hostnames`, `django_project_name`
-- modifier les variables dans `group_vars/cross_env_vars.yml`, notamment :
+- modifier les variables dans `group_vars/all/cross_env_vars.yml`, notamment :
   - le port ssh
 - vérifier les variables dans `roles/backend/vars/main.yml` et `roles/frontend/vars/main.yml`.
 - générer des identifiants Mailgun, S3 et Rollbar pour le projet.
@@ -93,7 +93,7 @@ chaque commit.
   lançant `bash generate_vault_key_on_first_install.sh`. Cela crée un fichier
   `vault.key` qui contient la clé du coffre-fort Ansible. Sauvegarder cette clé
   en endroit sûr et la partager de manière sûre avec les collègues
-  (par ex via un gestionnaire de mot de passe, chez TelesCoop nous utilisons Lastpass).
+  (par ex via un gestionnaire de mot de passe, chez TelesCoop nous utilisons Bitwarden).
 - modifier les valeurs du vault: `ansible-vault edit group_vars/all/cross_env_vault.yml`
 - Si besoin, ajouter un environnement :
 
