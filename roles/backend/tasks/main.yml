@@ -17,6 +17,7 @@
       - postgresql
       - postgresql-contrib
       - libpq-dev
+      - python3-pip
   when: database_provider == "postgresql"
 
 - name: Find postgresql auth config file to configure authentication
@@ -38,20 +39,18 @@
     name: psycopg2
   when: database_provider == "postgresql"
 
-- name: Create database {{ project_slug }}
-  community.postgresql.postgresql_db:
+- name: Create database user {{ project_slug }}
+  community.postgresql.postgresql_user:
     name: "{{ project_slug }}"
-    owner: "{{ project_slug }}"
+    password: "{{ database_password }}"
   become: true
   become_user: postgres
   when: database_provider == "postgresql"
 
-- name: Create database user {{ project_slug }}
-  community.postgresql.postgresql_user:
-    db: "{{ project_slug }}"
+- name: Create database {{ project_slug }}
+  community.postgresql.postgresql_db:
     name: "{{ project_slug }}"
-    password: "{{ database_password }}"
-    priv: ALL
+    owner: "{{ project_slug }}"
   become: true
   become_user: postgres
   when: database_provider == "postgresql"
