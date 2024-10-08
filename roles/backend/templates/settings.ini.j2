@@ -18,6 +18,7 @@ rollbar_access_token={{ vault_rollbar_access_token }}
 static_root={{ backend_static_path }}
 
 [database]
+engine=postgresql
 user={{ project_slug }}
 name={{ project_slug }}
 password = {{ database_password|default('') }}
