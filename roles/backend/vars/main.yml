@@ -6,7 +6,7 @@ venv:
 backend_path: "{{ project_dir }}/backend"
 backend_settings_path: /etc/{{ organization_slug }}/{{ project_slug }}/settings.ini
 
-backend_timeout: 30
+requests_timeout: 30
 backend_workers: 1
 
 database_backup:
