@@ -8,37 +8,40 @@
   notify:
     - reload nginx
 
-- name: Generate frontend /etc/ssh/ RSA host key
-  command: "ssh-keygen -q -t ed25519 -a 100 -f {{ frontend_identity_file_path }} -C \"\" -N \"\""
-  become_user: "{{ main_user }}"
-  args:
-    creates: "{{ frontend_identity_file_path }}"
-  register: frontend_new_ssh_key
+- name: Frontend ssh key config
+  block:
+    - name: Generate frontend /etc/ssh/ RSA host key
+      command: "ssh-keygen -q -t ed25519 -a 100 -f {{ frontend_identity_file_path }} -C \"\" -N \"\""
+      become_user: "{{ main_user }}"
+      args:
+        creates: "{{ frontend_identity_file_path }}"
+      register: frontend_new_ssh_key
 
-- name: WARNING ABOUT new ssh key
-  debug:
-    msg: |
-      IMPORTANT REMINDER
+    - name: WARNING ABOUT new ssh key
+      debug:
+        msg: |
+          IMPORTANT REMINDER
 
-      A new ssh key has been generated at {{ frontend_identity_file_path }}
-      - it should be added to the project deploy keys in Gitlab/Github
-      so that we can clone it.
-  when: frontend_new_ssh_key.changed
+          A new ssh key has been generated at {{ frontend_identity_file_path }}
+          - it should be added to the project deploy keys in Gitlab/Github
+          so that we can clone it.
+      when: frontend_new_ssh_key.changed
 
-- name: Get new ssh key contents
-  command: "cat {{ frontend_identity_file_path }}.pub"
-  register: command_output
-  when: frontend_new_ssh_key.changed
+    - name: Get new ssh key contents
+      command: "cat {{ frontend_identity_file_path }}.pub"
+      register: command_output
+      when: frontend_new_ssh_key.changed
 
-- name: Print ssh key to console
-  debug:
-    msg: "{{command_output.stdout}}"
-  when: frontend_new_ssh_key.changed
+    - name: Print ssh key to console
+      debug:
+        msg: "{{command_output.stdout}}"
+      when: frontend_new_ssh_key.changed
+  when: not is_mono_repo
 
 - name: get latest frontend code
   git:
     repo: '{{ frontend_repo }}'
-    dest: "{{ frontend_path }}"
+    dest: "{{ backend_path + '/..' if is_mono_repo else backend_path }}"
     key_file: "{{ frontend_identity_file_path }}"
     accept_hostkey: true
     force: true
@@ -62,15 +65,9 @@
     executable: /bin/bash
     creates: "{{ ansible_env.HOME }}/.nvm/{{ node_version.stdout }}_installed"
 
-- name: Install yarn globally
-  shell: "source /root/.nvm/nvm.sh && nvm exec {{ node_version.stdout }} npm install -g yarn"
-  args:
-    executable: /bin/bash
-    creates: "{{ ansible_env.HOME }}/.nvm/{{ node_version.stdout }}_yarn_installed"
-
-- name: Install project node dependencies with yarn
+- name: Install project node dependencies with npm
   # yamllint disable-line rule:line-length
-  shell: "source /root/.nvm/nvm.sh && nvm exec {{ node_version.stdout }} yarn install --frozen-lockfile"
+  shell: "source /root/.nvm/nvm.sh && nvm exec {{ node_version.stdout }} npm install"
   args:
     chdir: "{{ frontend_path }}"
     executable: /bin/bash
@@ -96,7 +93,7 @@
   block:
     - name: Build frontend code for static rendering
       # yamllint disable-line rule:line-length
-      shell: "source /root/.nvm/nvm.sh && nvm exec {{ node_version.stdout }} yarn generate"
+      shell: "source /root/.nvm/nvm.sh && nvm exec {{ node_version.stdout }} npm build"
       args:
         chdir: "{{ frontend_path }}"
         executable: /bin/bash
@@ -136,7 +133,7 @@
   block:
     - name: Build frontend code for SSR
       # yamllint disable-line rule:line-length
-      shell: "source /root/.nvm/nvm.sh && nvm exec {{ node_version.stdout }} yarn build"
+      shell: "source /root/.nvm/nvm.sh && nvm exec {{ node_version.stdout }} npm build"
       args:
         chdir: "{{ frontend_path }}"
         executable: /bin/bash
