@@ -148,7 +148,7 @@
     msg: "{{ backend_command_output.stdout }}"
   when: backend_new_ssh_key.changed
 
-- name: get latest code
+- name: get latest backend code
   git:
     repo: '{{ backend_repo }}'
     dest: "{{ backend_path + '/..' if is_mono_repo else backend_path }}"

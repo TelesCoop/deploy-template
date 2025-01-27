@@ -11,7 +11,8 @@
 - name: Frontend ssh key config
   block:
     - name: Generate frontend /etc/ssh/ RSA host key
-      command: "ssh-keygen -q -t ed25519 -a 100 -f {{ frontend_identity_file_path }} -C \"\" -N \"\""
+      command: "ssh-keygen -q -t ed25519 -a 100 -f {{ frontend_identity_file_path }}
+                -C \"\" -N \"\""
       become_user: "{{ main_user }}"
       args:
         creates: "{{ frontend_identity_file_path }}"
@@ -143,7 +144,7 @@
     - debug: msg="{{ build_code.stdout }}"
       when: clonecode.changed or force_update is defined
 
-    - name: Copy supervisord config to {{ supervisor_conf }}/{{ project_slug }}_backend.conf
+    - name: Copy supervisord config to {{ supervisor_conf }}/{{ project_slug }}_frontend.conf
       template:
         src: frontend-supervisor.conf.j2
         dest: "{{ supervisor_conf }}/{{ project_slug }}_frontend.conf"
