@@ -6,18 +6,38 @@ upstream app_servers_{{ project_slug }} {
 
 server {
 
+    {% if https_enabled -%}
+    listen 443 ssl;
+
+    ssl_certificate /etc/letsencrypt/live/{{ certificate_hostname }}/fullchain.pem; # managed by Certbot
+    ssl_certificate_key /etc/letsencrypt/live/{{ certificate_hostname }}/privkey.pem; # managed by Certbot
+    include /etc/letsencrypt/options-ssl-nginx.conf; # managed by Certbot
+    ssl_dhparam /etc/letsencrypt/ssl-dhparams.pem; # managed by Certbot
+    {% else -%}
     listen 80;
+    {% endif %}
 
-    server_name {{ " ".join(public_hostnames) }};
+    server_name {{ " ".join(all_hostnames) }};
 
-    access_log /var/log/nginx/access_{{ public_hostnames[0].replace('.', '_') }}.log;
-    error_log /var/log/nginx/error_{{ public_hostnames[0].replace('.', '_') }}.log;
+    access_log /var/log/nginx/access_{{ main_hostname.replace('.', '_') }}.log;
+    error_log /var/log/nginx/error_{{ main_hostname.replace('.', '_') }}.log;
+
+    {% for hostname in redirect_hostnames -%}
+    if ($host = {{ hostname }}) {
+        return 301 https://{{ main_hostname }}$request_uri;
+    } # managed by Certbot
+    {% endfor %}
 
     # http://stackoverflow.com/questions/15238506/djangos-suspiciousoperation-invalid-http-host-header
     # Deny illegal Host headers
-    if ($host !~* ^({{ "|".join(public_hostnames) }})$ ) {
+    if ($host !~* ^({{ "|".join(all_hostnames) }})$ ) {
         return 444;
     }
+
+    # gzip compression
+    gzip on;
+    gzip_vary on;
+    gzip_types application/json application/javascript application/xml text/css text/javascript text/plain text/xml image/svg+xml;
 
     # backend static stuff
     location /static  {
@@ -34,3 +54,24 @@ server {
         proxy_set_header   X-Forwarded-Host $server_name;
     }
 }
+
+{% if https_enabled %}
+server {
+    {% for hostname in public_hostnames -%}
+    if ($host = {{ hostname }}) {
+        return 301 https://$host$request_uri;
+    } # managed by Certbot
+    {% endfor %}
+
+    {% for hostname in redirect_hostnames -%}
+    if ($host = {{ hostname }}) {
+        return 301 https://{{ main_hostname }}$request_uri;
+    } # managed by Certbot
+    {% endfor %}
+
+    server_name {{ " ".join(all_hostnames) }};
+
+    listen 80;
+    return 404; # managed by Certbot
+}
+{% endif %}

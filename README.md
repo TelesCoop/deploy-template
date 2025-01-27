@@ -6,7 +6,7 @@
 Principaux outils open-sources
 
 - frontend:
-  - Serveur nginx
+   - Serveur nginx
 - backend: framework Django, gunicorn pour le wsgi
 
 Outils externes potentiellement payants
@@ -24,7 +24,7 @@ Ce considère donc :
 - Que vous utilisez `gunicorn` comme outil `wsgi` pour le backend. À adapter
   dans `roles/backend/teamplte/supervisor.conf.j2`.
 - Que vous utilisez
-  [telescoop-backup](https://gitlab.com/telescoop-public/django-apps/telescoop-backup)
+  [telescoop-backup](https://github.com/TelesCoop/telescoop-backup)
   pour sauvegarder votre base de donnée. À adapter dans `roles/backend/tasks/main.yml`.
 
 ## Les différents rôles/playbook
@@ -76,24 +76,24 @@ chaque commit.
 
 - modifier le fichier `hosts` pour indiquer sur quel nom de domain ou IP se trouve
   le serveur à manager.
-- modifier les variables dans `group_vars/vars.yml`, notamment
+- modifier les variables dans `group_vars/all/vars.yml`, notamment
   `organization_slug`, `project_slug`, `main_user`, `public_hostnames`, `django_project_name`
-- modifier les variables dans `group_vars/cross_env_vars.yml`, notamment :
-  - le port ssh
+- modifier les variables dans `group_vars/all/cross_env_vars.yml`, notamment :
+   - le port ssh
 - vérifier les variables dans `roles/backend/vars/main.yml` et `roles/frontend/vars/main.yml`.
 - générer des identifiants Mailgun, S3 et Rollbar pour le projet.
 - modifier la clé du coffre-fort Ansible avec une clé générée aléatoirement en
   lançant `bash generate_vault_key_on_first_install.sh`. Cela crée un fichier
   `vault.key` qui contient la clé du coffre-fort Ansible. Sauvegarder cette clé
   en endroit sûr et la partager de manière sûre avec les collègues
-  (par ex via un gestionnaire de mot de passe, chez TelesCoop nous utilisons Lastpass).
+  (par ex via un gestionnaire de mot de passe, chez TelesCoop nous utilisons Bitwarden).
 - modifier les valeurs du vault: `ansible-vault edit group_vars/all/cross_env_vault.yml`
 - Si besoin, ajouter un environnement :
 
-  - Choisir un nouveau nom, par exemple `preprod`.
-  - créer un nouveau dossier `preprod` dans group_vars, en partant de `prod` comme
-  modèle
-  - ajouter une section `preprod` dans `hosts`
+   - Choisir un nouveau nom, par exemple `preprod`.
+   - créer un nouveau dossier `preprod` dans group_vars, en partant de `prod` comme
+   modèle
+   - ajouter une section `preprod` dans `hosts`
 
 ## TODO
 

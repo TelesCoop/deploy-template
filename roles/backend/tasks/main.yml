@@ -17,6 +17,7 @@
       - postgresql
       - postgresql-contrib
       - libpq-dev
+      - python3-pip
   when: database_provider == "postgresql"
 
 - name: Find postgresql auth config file to configure authentication
@@ -38,20 +39,18 @@
     name: psycopg2
   when: database_provider == "postgresql"
 
-- name: Create database {{ project_slug }}
-  community.postgresql.postgresql_db:
+- name: Create database user {{ project_slug }}
+  community.postgresql.postgresql_user:
     name: "{{ project_slug }}"
-    owner: "{{ project_slug }}"
+    password: "{{ database_password }}"
   become: true
   become_user: postgres
   when: database_provider == "postgresql"
 
-- name: Create database user {{ project_slug }}
-  community.postgresql.postgresql_user:
-    db: "{{ project_slug }}"
+- name: Create database {{ project_slug }}
+  community.postgresql.postgresql_db:
     name: "{{ project_slug }}"
-    password: "{{ database_password }}"
-    priv: ALL
+    owner: "{{ project_slug }}"
   become: true
   become_user: postgres
   when: database_provider == "postgresql"
@@ -77,7 +76,7 @@
       owner: "{{ main_user }}"
     - path: "/etc/{{ organization_slug }}"
       mode: '2775'
-      owner: "{{ main_user }}"
+      owner: "root"
     - path: "/etc/{{ organization_slug }}/{{ project_slug }}"
       mode: '2775'
       owner: "{{ main_user }}"
@@ -149,10 +148,10 @@
     msg: "{{ backend_command_output.stdout }}"
   when: backend_new_ssh_key.changed
 
-- name: get latest code
+- name: get latest backend code
   git:
     repo: '{{ backend_repo }}'
-    dest: "{{ backend_path }}"
+    dest: "{{ backend_path + '/..' if is_mono_repo else backend_path }}"
     key_file: "{{ backend_identity_file_path }}"
     force: true
     version: "{{ backend_branch }}"
