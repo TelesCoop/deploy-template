@@ -1,0 +1,37 @@
+---
+- name: Static config
+  block:
+    - name: Build frontend code for static rendering
+      # yamllint disable-line rule:line-length
+      shell: "source /root/.nvm/nvm.sh && nvm exec {{ node_version.stdout }} npm run build"
+      args:
+        chdir: "{{ frontend_path }}"
+        executable: /bin/bash
+      when: clonecode.changed or force_update is defined
+      register: build_code
+
+    - debug: msg="{{ build_code.stdout }}"
+      when: clonecode.changed  or force_update is defined
+
+    - name: Update frontend static folder
+      file:
+        path: "{{ frontend_static_path }}"
+        state: "{{ item }}"
+        owner: www-data
+        mode: '2755'
+      with_items:
+        - absent
+        - directory
+      when: clonecode.changed or force_update is defined
+
+    - name: update frontend static folder content
+      synchronize:
+        src: "{{ frontend_path }}/dist/"
+        dest: "{{ frontend_static_path }}/"
+        rsync_opts:
+          - "-og"
+          - "--chown=www-data"
+      delegate_to: "{{ inventory_hostname }}"
+      when: clonecode.changed or force_update is defined
+
+  when: frontend_mode == 'static'

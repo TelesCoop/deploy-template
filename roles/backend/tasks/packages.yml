@@ -1,0 +1,22 @@
+---
+- name: Install misc packages
+  apt:
+    name:
+      - python3-venv
+      - nginx
+      - supervisor
+
+- name: Install sqlite
+  apt:
+    name:
+      - sqlite3
+  when: database_provider == "sqlite"
+
+- name: Install postgresql
+  apt:
+    name:
+      - postgresql
+      - postgresql-contrib
+      - libpq-dev
+      - python3-pip
+  when: database_provider == "postgresql"

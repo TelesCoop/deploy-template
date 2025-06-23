@@ -1,0 +1,34 @@
+---
+- name: Create backend venv {{ venv.path }}
+  command:
+    cmd: python3 -m venv --system-site-packages {{ venv.path }}
+    creates: "{{ venv.path }}/bin/python"
+  become: true
+  become_user: "{{ main_user }}"
+
+- name: Install {{ project_slug }}-ctl
+  template:
+    src: backend-ctl.j2
+    dest: "/usr/local/bin/{{ project_slug }}-ctl"
+    mode: "0755"
+
+- name: Copy django settings to {{ backend_settings_path }}
+  template:
+    src: settings.ini.j2
+    dest: "{{ backend_settings_path }}"
+    owner: "{{ main_user }}"
+    group: devops
+    mode: 0660
+
+- name: Copy supervisord config to {{ supervisor_conf }}/{{ project_slug }}_backend.conf
+  template:
+    src: backend-supervisor.conf.j2
+    dest: "{{ supervisor_conf }}/{{ project_slug }}_backend.conf"
+    owner: root
+    group: root
+    mode: 0644
+
+- name: Install {{ project_slug }}-backend supervisor
+  supervisorctl:
+    name: "{{ project_slug }}-backend"
+    state: present
