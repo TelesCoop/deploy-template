@@ -1,0 +1,8 @@
+---
+- name: "daily database backup"
+  cron:
+    user: "{{ main_user }}"
+    name: "daily {{ project_slug }} database backup"
+    hour: '{{ database_backup.hour }}'
+    minute: '{{ database_backup.minute }}'
+    job: "{{ project_slug }}-ctl backup_db backup"
