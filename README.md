@@ -15,10 +15,22 @@ Template Ansible pour automatiser le déploiement et la maintenance d'applicatio
 
 ## Prérequis
 
-- **Ansible 2.9+** installé sur votre machine locale
-- **Python 3** sur les serveurs cibles
-- **Accès SSH** configuré vers vos serveurs
+### Sur votre machine locale
+- **Ansible 2.9+** installé
+- **Git** avec accès aux repositories du projet
 - **Clé du vault Ansible** (`vault.key`) pour accéder aux variables chiffrées
+
+### Sur les serveurs cibles
+- **Ubuntu/Debian** (testé sur Ubuntu 18.04+)
+- **Python 3** avec pip
+- **Accès SSH** avec privilèges sudo
+- **Git** installé
+- **Accès Internet** pour télécharger les dépendances
+
+### Accès réseau requis
+- **Port SSH** (par défaut 22, configurable)
+- **Port HTTP** (80) et **HTTPS** (443) pour le web
+- **Ports applicatifs** configurables pour backend et frontend
 
 ## Stack technique
 
@@ -29,9 +41,10 @@ Template Ansible pour automatiser le déploiement et la maintenance d'applicatio
 - **Serveur web** : Nginx
 
 ### Services externes (optionnels)
-- **Mailgun** : envoi d'emails
-- **Service S3** : sauvegarde de base de données
-- **Rollbar** : monitoring des erreurs
+- **Mailgun** : envoi d'emails transactionnels
+- **Service S3** : stockage des sauvegardes de base de données
+- **Rollbar** : monitoring et tracking des erreurs en production
+- **Let's Encrypt** : certificats SSL automatiques
 
 ## Installation et utilisation
 
@@ -61,13 +74,14 @@ votre-serveur.com:22 ansible_user=ubuntu
 ### 3. Déploiement complet
 
 ```bash
-# Premier déploiement (nouveau serveur)
-ansible-playbook base.yml
+# Déploiement du backend
 ansible-playbook backend.yml
+
+# Déploiement du frontend
 ansible-playbook frontend.yml
 
-# Ou déploiement complet en une commande
-ansible-playbook bootstrap.yml
+# Ou les deux en séquence
+ansible-playbook backend.yml && ansible-playbook frontend.yml
 ```
 
 ### 4. Mises à jour
@@ -85,27 +99,29 @@ ansible-playbook backend.yml -e force_update=1
 
 ## Architecture des rôles
 
-### `base`
-- Installation des dépendances système
-- Configuration des mises à jour automatiques
-- Paramétrage des logs nginx
-- Configuration firewall et sécurité
-
-**Usage** : Une seule fois par serveur, pas nécessaire pour chaque nouveau projet.
-
 ### `backend`
-- Clonage du repository backend
-- Installation des dépendances Python
-- Configuration Django (settings, migration)
-- Paramétrage supervisord pour gunicorn
-- Configuration de la base de données
+- **Packages système** : Python 3, nginx, supervisord, PostgreSQL (si utilisé)
+- **Utilisateur système** : Création d'un utilisateur dédié avec UID personnalisé
+- **Base de données** : Configuration PostgreSQL ou SQLite selon `database_provider`
+- **Application Django** :
+  - Environnement virtuel Python
+  - Installation des dépendances via requirements.txt
+  - Configuration Django via `settings.ini`
+  - Migrations automatiques
+  - Collecte des fichiers statiques
+- **Processus** : Configuration supervisord pour gunicorn
+- **Utilitaires** : Script de contrôle `{project}-ctl` pour la gestion
+- **Sauvegardes** : Tâche cron quotidienne vers S3
 
 ### `frontend`
-- Clonage du repository frontend
-- Installation des dépendances Node.js
-- Build de l'application (static ou SSR)
-- Configuration nginx
-- Paramétrage supervisord (mode SSR uniquement)
+- **Node.js** : Installation via NVM (version depuis `.nvmrc`)
+- **Code source** : Clonage du repository frontend
+- **Dépendances** : Installation via npm/yarn
+- **Build** :
+  - **Mode static** : Génération statique vers dossier nginx
+  - **Mode SSR** : Build pour rendu côté serveur + supervisord
+- **Configuration nginx** : Proxy, SSL, gestion des erreurs
+- **Variables d'environnement** : Fichier `.env` pour la configuration
 
 ## Commandes de maintenance
 
@@ -118,6 +134,25 @@ ansible prod -m shell -a "supervisorctl status"
 ansible prod -m shell -a "tail -f /var/log/supervisor/backend-*.log"
 ```
 
+### Gestion de la base de données et Django
+```bash
+# Script de contrôle backend (remplacez les variables par vos valeurs)
+# Sauvegarde manuelle
+ansible prod -m shell -a "sudo /org/projet/projet-ctl backup"
+
+# Migration Django
+ansible prod -m shell -a "sudo /org/projet/projet-ctl migrate"
+
+# Shell Django interactif
+ansible prod -m shell -a "sudo /org/projet/projet-ctl shell"
+
+# Collecte des fichiers statiques
+ansible prod -m shell -a "sudo /org/projet/projet-ctl collectstatic --noinput"
+
+# Création d'un superutilisateur
+ansible prod -m shell -a "sudo /org/projet/projet-ctl createsuperuser"
+```
+
 ### Redémarrage des services
 ```bash
 # Redémarrer tous les services
@@ -125,6 +160,12 @@ ansible prod -m shell -a "supervisorctl restart all"
 
 # Redémarrer nginx
 ansible prod -m shell -a "systemctl restart nginx"
+
+# Redémarrer uniquement le backend
+ansible prod -m shell -a "supervisorctl restart backend-*"
+
+# Redémarrer uniquement le frontend (mode SSR)
+ansible prod -m shell -a "supervisorctl restart frontend-*"
 ```
 
 ## Adaptation pour un nouveau projet
@@ -159,10 +200,31 @@ bash generate_vault_key_on_first_install.sh
 ansible-vault edit group_vars/all/cross_env_vault.yml
 ```
 
-Configurer dans le vault :
-- Clés API (Mailgun, S3, Rollbar)
-- Mots de passe de base de données
-- Clés secrètes Django
+Configurer dans le vault les variables suivantes :
+
+```yaml
+# Django
+django_secret_key: "votre-clé-secrète-django-très-longue"
+
+# Base de données (si PostgreSQL)
+database_password: "mot-de-passe-sécurisé"
+
+# Mailgun (optionnel)
+mailgun_api_key: "key-xxxxxxxxxxxxx"
+mailgun_domain: "mg.votre-domaine.com"
+
+# Sauvegarde S3 (optionnel)
+backup_s3_access_key: "AKIAIOSFODNN7EXAMPLE"
+backup_s3_secret_key: "wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY"
+backup_s3_bucket: "mon-projet-backups"
+backup_s3_region: "eu-west-3"
+
+# Rollbar (optionnel)
+rollbar_access_token: "xxxxxxxxxxxxxxxxxxxxxxxxx"
+
+# Contact
+contact_email: "admin@votre-domaine.com"
+```
 
 ### 4. Personnalisation avancée
 
@@ -203,17 +265,80 @@ preprod.mon-projet.com:22 ansible_user=ubuntu
 - **Frontend** : Adapter `roles/frontend/tasks/main.yml` pour d'autres frameworks
 - **Nginx** : Personnaliser `roles/frontend/templates/nginx.conf.j2`
 
-### Sécurité
+### Sécurité et SSL
 
-- Les règles iptables sont configurées dans le rôle `base`
-- Configuration RAID disponible (à adapter selon vos besoins)
-- Certificats SSL automatiques via Let's Encrypt (si configuré)
+- **Configuration nginx sécurisée** : Protection contre les attaques communes
+- **Gestion des permissions utilisateurs** : Utilisateur dédié par projet
+- **Variables sensibles chiffrées** : Ansible Vault pour tous les secrets
+- **Support SSL/TLS** : Configuration prête pour Let's Encrypt
 
-### Monitoring
+#### Configuration SSL avec Let's Encrypt
 
-- Logs centralisés dans `/var/log/${votre-org}/${votre-projet}/`
-- Supervision via supervisord
-- Rotation automatique des logs
+```bash
+# Installer certbot sur le serveur
+sudo apt update && sudo apt install certbot python3-certbot-nginx
+
+# Obtenir un certificat (remplacer par vos domaines)
+sudo certbot --nginx -d votre-domaine.com -d www.votre-domaine.com
+
+# Le renouvellement automatique est configuré via cron
+sudo crontab -l | grep certbot
+```
+
+La configuration nginx inclut déjà les directives SSL. Une fois les certificats obtenus, nginx utilisera automatiquement HTTPS.
+
+### Monitoring et logs
+
+- **Logs centralisés** : `/var/log/votre-org/votre-projet/`
+  - `backend.log` : Logs de l'application Django
+  - `frontend.log` : Logs frontend (mode SSR uniquement)
+  - `nginx-access.log` et `nginx-error.log` : Logs du serveur web
+- **Supervision** : supervisord pour le monitoring des processus
+- **Rotation automatique** : Configuration logrotate pour éviter la saturation disque
+- **Rollbar** : Tracking des erreurs en production (si configuré)
+
+#### Consulter les logs
+```bash
+# Logs en temps réel
+ansible prod -m shell -a "tail -f /var/log/votre-org/votre-projet/backend.log"
+
+# Logs nginx
+ansible prod -m shell -a "tail -f /var/log/nginx/access.log"
+
+# Statut des services
+ansible prod -m shell -a "supervisorctl status"
+```
+
+## Dépannage
+
+### Problèmes courants
+
+**Service ne démarre pas**
+```bash
+# Vérifier les logs supervisord
+ansible prod -m shell -a "tail -f /var/log/supervisor/supervisord.log"
+
+# Redémarrer supervisord
+ansible prod -m shell -a "systemctl restart supervisor"
+```
+
+**Problème de permissions**
+```bash
+# Vérifier les permissions des dossiers
+ansible prod -m shell -a "ls -la /votre-org/votre-projet/"
+
+# Corriger les permissions si nécessaire
+ansible-playbook backend.yml --tags permissions
+```
+
+**Erreur de base de données**
+```bash
+# Vérifier la connexion PostgreSQL
+ansible prod -m shell -a "sudo -u postgres psql -l"
+
+# Tester la migration
+ansible prod -m shell -a "sudo /votre-org/votre-projet/projet-ctl migrate --dry-run"
+```
 
 ---
 
