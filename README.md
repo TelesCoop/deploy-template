@@ -1,17 +1,20 @@
 
-# Template de déploiement Ansible - Django + Nuxt
+# Template de déploiement Ansible - Django + Vue (ou Nuxt)
 
-Template Ansible pour automatiser le déploiement et la maintenance d'applications web basées sur Django (backend) et Vue 3 (ou Nuxt) en front-end. 
+Template Ansible pour automatiser le déploiement et la maintenance d'applications web basées sur Django (backend) et Vue 3 (ou Nuxt) en front-end.
+
+**🎯 Objectif principal** : Adapter ce template pour déployer votre propre projet en quelques étapes simples.
 
 ## Table des matières
 
 - [Prérequis](#prérequis)
 - [Stack technique](#stack-technique)
-- [Installation et utilisation](#installation-et-utilisation)
-- [Architecture des rôles](#architecture-des-rôles)
+- [🚀 Adaptation pour un nouveau projet](#-adaptation-pour-un-nouveau-projet)
+- [Déploiement](#déploiement)
 - [Commandes de maintenance](#commandes-de-maintenance)
-- [Adaptation pour un nouveau projet](#adaptation-pour-un-nouveau-projet)
+- [Architecture des rôles](#architecture-des-rôles)
 - [Configuration avancée](#configuration-avancée)
+- [Dépannage](#dépannage)
 
 ## Prérequis
 
@@ -46,7 +49,7 @@ Template Ansible pour automatiser le déploiement et la maintenance d'applicatio
 - **Rollbar** : monitoring et tracking des erreurs en production
 - **Let's Encrypt** : certificats SSL automatiques
 
-## Installation et utilisation
+## 🚀 Adaptation pour un nouveau projet
 
 ### 1. Configuration initiale
 
@@ -63,7 +66,25 @@ pre-commit install
 cp /chemin/vers/vault.key .
 ```
 
-### 2. Configuration des serveurs
+### 2. Configuration des variables principales
+
+Éditer `group_vars/all/vars.yml` :
+```yaml
+organization_slug: votre-org
+base_project_slug: mon-projet
+main_user: mon-projet
+main_user_uid: 10042  # Unique par projet sur le serveur
+django_project_name: mon_projet_back
+backend_repo: git@github.com:votre-org/mon-projet-backend.git
+frontend_repo: git@github.com:votre-org/mon-projet-frontend.git
+```
+
+### 3. Configuration des environnements
+
+Éditer `group_vars/all/cross_env_vars.yml` pour définir :
+- Ports SSH personnalisés
+- Domaines publics
+- Configuration réseau
 
 Modifier le fichier `hosts` :
 ```ini
@@ -71,7 +92,78 @@ Modifier le fichier `hosts` :
 votre-serveur.com:22 ansible_user=ubuntu
 ```
 
-### 3. Déploiement complet
+### 4. Génération des secrets
+
+```bash
+# Générer une nouvelle clé de vault
+bash generate_vault_key_on_first_install.sh
+
+# Éditer les variables secrètes
+ansible-vault edit group_vars/all/cross_env_vault.yml
+```
+
+Configurer dans le vault les variables suivantes :
+
+```yaml
+# Django
+django_secret_key: "votre-clé-secrète-django-très-longue"
+
+# Base de données (si PostgreSQL)
+database_password: "mot-de-passe-sécurisé"
+
+# Mailgun (optionnel)
+mailgun_api_key: "key-xxxxxxxxxxxxx"
+mailgun_domain: "mg.votre-domaine.com"
+
+# Sauvegarde S3 (optionnel)
+backup_s3_access_key: "AKIAIOSFODNN7EXAMPLE"
+backup_s3_secret_key: "wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY"
+backup_s3_bucket: "mon-projet-backups"
+backup_s3_region: "eu-west-3"
+
+# Rollbar (optionnel)
+rollbar_access_token: "xxxxxxxxxxxxxxxxxxxxxxxxx"
+
+# Contact
+contact_email: "admin@votre-domaine.com"
+```
+
+### 5. Personnalisation avancée
+
+#### Mode frontend
+Modifier `frontend_mode` dans `vars.yml` :
+- `static` : génération statique (JAMstack)
+- `SSR` : rendu côté serveur
+
+#### Base de données
+Changer `database_provider` :
+- `sqlite` : pour les petits projets
+- `postgresql` : pour la production
+
+#### Repositories
+Adapter les URLs de dépôts dans `vars.yml` selon votre structure :
+- Mono-repo : `is_mono_repo: true`
+- Repos séparés : `is_mono_repo: false`
+
+### 6. Ajout d'un environnement
+
+Pour ajouter un environnement de préproduction :
+
+```bash
+# Créer le dossier de variables
+mkdir group_vars/preprod
+cp group_vars/prod/vars.yml group_vars/preprod/
+
+# Ajouter dans hosts
+[preprod]
+preprod.mon-projet.com:22 ansible_user=ubuntu
+```
+
+## Déploiement
+
+### Premier déploiement
+
+Notes : les commandes ont un ordre logique qu'il est recommandé de suivre pour éviter les erreurs.
 
 ```bash
 # Déploiement du backend
@@ -84,7 +176,7 @@ ansible-playbook frontend.yml
 ansible-playbook backend.yml && ansible-playbook frontend.yml
 ```
 
-### 4. Mises à jour
+### Redéploiement 
 
 ```bash
 # Mise à jour du backend uniquement
@@ -97,33 +189,9 @@ ansible-playbook frontend.yml
 ansible-playbook backend.yml -e force_update=1
 ```
 
-## Architecture des rôles
-
-### `backend`
-- **Packages système** : Python 3, nginx, supervisord, PostgreSQL (si utilisé)
-- **Utilisateur système** : Création d'un utilisateur dédié avec UID personnalisé
-- **Base de données** : Configuration PostgreSQL ou SQLite selon `database_provider`
-- **Application Django** :
-  - Environnement virtuel Python
-  - Installation des dépendances via requirements.txt
-  - Configuration Django via `settings.ini`
-  - Migrations automatiques
-  - Collecte des fichiers statiques
-- **Processus** : Configuration supervisord pour gunicorn
-- **Utilitaires** : Script de contrôle `{project}-ctl` pour la gestion
-- **Sauvegardes** : Tâche cron quotidienne vers S3
-
-### `frontend`
-- **Node.js** : Installation via NVM (version depuis `.nvmrc`)
-- **Code source** : Clonage du repository frontend
-- **Dépendances** : Installation via npm/yarn
-- **Build** :
-  - **Mode static** : Génération statique vers dossier nginx
-  - **Mode SSR** : Build pour rendu côté serveur + supervisord
-- **Configuration nginx** : Proxy, SSL, gestion des erreurs
-- **Variables d'environnement** : Fichier `.env` pour la configuration
-
 ## Commandes de maintenance
+
+Notes : toutes les commandes ci-dessous peuvent aussi être exécutées sur le serveur. 
 
 ### Surveillance et logs
 ```bash
@@ -168,95 +236,6 @@ ansible prod -m shell -a "supervisorctl restart backend-*"
 ansible prod -m shell -a "supervisorctl restart frontend-*"
 ```
 
-## Adaptation pour un nouveau projet
-
-### 1. Configuration des variables principales
-
-Éditer `group_vars/all/vars.yml` :
-```yaml
-organization_slug: votre-org
-base_project_slug: mon-projet
-main_user: mon-projet
-main_user_uid: 10042  # Unique par projet sur le serveur
-django_project_name: mon_projet_back
-backend_repo: git@github.com:votre-org/mon-projet-backend.git
-frontend_repo: git@github.com:votre-org/mon-projet-frontend.git
-```
-
-### 2. Configuration des environnements
-
-Éditer `group_vars/all/cross_env_vars.yml` pour définir :
-- Ports SSH personnalisés
-- Domaines publics
-- Configuration réseau
-
-### 3. Génération des secrets
-
-```bash
-# Générer une nouvelle clé de vault
-bash generate_vault_key_on_first_install.sh
-
-# Éditer les variables secrètes
-ansible-vault edit group_vars/all/cross_env_vault.yml
-```
-
-Configurer dans le vault les variables suivantes :
-
-```yaml
-# Django
-django_secret_key: "votre-clé-secrète-django-très-longue"
-
-# Base de données (si PostgreSQL)
-database_password: "mot-de-passe-sécurisé"
-
-# Mailgun (optionnel)
-mailgun_api_key: "key-xxxxxxxxxxxxx"
-mailgun_domain: "mg.votre-domaine.com"
-
-# Sauvegarde S3 (optionnel)
-backup_s3_access_key: "AKIAIOSFODNN7EXAMPLE"
-backup_s3_secret_key: "wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY"
-backup_s3_bucket: "mon-projet-backups"
-backup_s3_region: "eu-west-3"
-
-# Rollbar (optionnel)
-rollbar_access_token: "xxxxxxxxxxxxxxxxxxxxxxxxx"
-
-# Contact
-contact_email: "admin@votre-domaine.com"
-```
-
-### 4. Personnalisation avancée
-
-#### Mode frontend
-Modifier `frontend_mode` dans `vars.yml` :
-- `static` : génération statique (JAMstack)
-- `SSR` : rendu côté serveur
-
-#### Base de données
-Changer `database_provider` :
-- `sqlite` : pour les petits projets
-- `postgresql` : pour la production
-
-#### Repositories
-Adapter les URLs de dépôts dans `vars.yml` selon votre structure :
-- Mono-repo : `is_mono_repo: true`
-- Repos séparés : `is_mono_repo: false`
-
-### 5. Ajout d'un environnement
-
-Pour ajouter un environnement de préproduction :
-
-```bash
-# Créer le dossier de variables
-mkdir group_vars/preprod
-cp group_vars/prod/vars.yml group_vars/preprod/
-
-# Ajouter dans hosts
-[preprod]
-preprod.mon-projet.com:22 ansible_user=ubuntu
-```
-
 ## Configuration avancée
 
 ### Personnalisation des rôles
@@ -272,21 +251,6 @@ preprod.mon-projet.com:22 ansible_user=ubuntu
 - **Variables sensibles chiffrées** : Ansible Vault pour tous les secrets
 - **Support SSL/TLS** : Configuration prête pour Let's Encrypt
 
-#### Configuration SSL avec Let's Encrypt
-
-```bash
-# Installer certbot sur le serveur
-sudo apt update && sudo apt install certbot python3-certbot-nginx
-
-# Obtenir un certificat (remplacer par vos domaines)
-sudo certbot --nginx -d votre-domaine.com -d www.votre-domaine.com
-
-# Le renouvellement automatique est configuré via cron
-sudo crontab -l | grep certbot
-```
-
-La configuration nginx inclut déjà les directives SSL. Une fois les certificats obtenus, nginx utilisera automatiquement HTTPS.
-
 ### Monitoring et logs
 
 - **Logs centralisés** : `/var/log/votre-org/votre-projet/`
@@ -297,7 +261,7 @@ La configuration nginx inclut déjà les directives SSL. Une fois les certificat
 - **Rotation automatique** : Configuration logrotate pour éviter la saturation disque
 - **Rollbar** : Tracking des erreurs en production (si configuré)
 
-#### Consulter les logs
+#### Consulter les logs Django
 ```bash
 # Logs en temps réel
 ansible prod -m shell -a "tail -f /var/log/votre-org/votre-projet/backend.log"
@@ -308,6 +272,32 @@ ansible prod -m shell -a "tail -f /var/log/nginx/access.log"
 # Statut des services
 ansible prod -m shell -a "supervisorctl status"
 ```
+
+## Architecture des rôles
+
+### `backend`
+- **Packages système** : Python 3, nginx, supervisord, PostgreSQL (si utilisé)
+- **Utilisateur système** : Création d'un utilisateur dédié avec UID personnalisé
+- **Base de données** : Configuration PostgreSQL ou SQLite selon `database_provider`
+- **Application Django** :
+  - Environnement virtuel Python
+  - Installation des dépendances via requirements.txt
+  - Configuration Django via `settings.ini`
+  - Migrations automatiques
+  - Collecte des fichiers statiques
+- **Processus** : Configuration supervisord pour gunicorn
+- **Utilitaires** : Script de contrôle `{project}-ctl` pour la gestion
+- **Sauvegardes** : Tâche cron quotidienne vers S3
+
+### `frontend`
+- **Node.js** : Installation via NVM (version depuis `.nvmrc`)
+- **Code source** : Clonage du repository frontend
+- **Dépendances** : Installation via npm/yarn
+- **Build** :
+  - **Mode static** : Génération statique vers dossier nginx
+  - **Mode SSR** : Build pour rendu côté serveur + supervisord
+- **Configuration nginx** : Proxy, SSL, gestion des erreurs
+- **Variables d'environnement** : Fichier `.env` pour la configuration
 
 ## Dépannage
 
