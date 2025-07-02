@@ -51,6 +51,10 @@ Template Ansible pour automatiser le déploiement et la maintenance d'applicatio
 
 ## 🚀 Adaptation pour un nouveau projet
 
+### 0. Copier le contenu du répertoire
+
+Copier le contenu de ce dépôt dans un dossier "deploy" dans votre projet.
+
 ### 1. Configuration initiale
 
 ```bash
