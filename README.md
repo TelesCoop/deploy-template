@@ -336,4 +336,4 @@ ansible prod -m shell -a "sudo /votre-org/votre-projet/projet-ctl migrate --dry-
 
 ---
 
-**Support** : Pour toute question, consulter la documentation Ansible ou contacter l'équipe de développement.
+**Support** : Pour toute question, consulter la documentation Ansible ou contacter l'équipe de TelesCoop.
