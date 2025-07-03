@@ -79,8 +79,14 @@ base_project_slug: mon-projet
 main_user: mon-projet
 main_user_uid: 10042  # Unique par projet sur le serveur
 django_project_name: mon_projet_back
-backend_repo: git@github.com:votre-org/mon-projet-backend.git
-frontend_repo: git@github.com:votre-org/mon-projet-frontend.git
+
+# Dans le cas d'un un mono-repo (is_mono_repo: true), le back-end et le front-end sont configurés pour utiliser le même dépôt.
+backend_repo: git@github.com:votre-org/mon-projet-fullstack.git
+frontend_repo: git@github.com:votre-org/mon-projet-fullstack.git
+
+# Pour des repos séparés (is_mono_repo: false), le backend et le frontend sont configurés pour utiliser des dépôts différents.
+# backend_repo: git@github.com:votre-org/mon-projet-backend.git
+# frontend_repo: git@github.com:votre-org/mon-projet-frontend.git
 ```
 
 ### 3. Configuration des environnements
@@ -148,6 +154,12 @@ Changer `database_provider` :
 Adapter les URLs de dépôts dans `vars.yml` selon votre structure :
 - Mono-repo : `is_mono_repo: true`
 - Repos séparés : `is_mono_repo: false`
+
+#### Logique mono-repo
+Lorsque `is_mono_repo` est activé, le template adapte automatiquement sa logique de déploiement :
+- **Repository unique** : Le même dépôt contient le backend et le frontend
+- **Branches partagées** : Utilisation de la même branche pour backend et frontend
+- **Chemins relatifs** : Les chemins de build sont adaptés pour pointer vers les sous-dossiers appropriés
 
 ### 6. Ajout d'un environnement
 
