@@ -3,7 +3,10 @@
 
 Template Ansible pour automatiser le déploiement et la maintenance d'applications web basées sur Django (backend) et Vue 3 (ou Nuxt) en front-end.
 
+
 **🎯 Objectif principal** : Adapter ce template pour déployer votre propre projet en quelques étapes simples.
+
+**⚠️ Note importante** : Ce template ne couvre pas la configuration initiale d'un nouveau serveur (utilisateurs, SSH, sécurité de base). Pour cela, utilisez le repository dédié : https://github.com/TelesCoop/ansible-ssh-config
 
 ## Table des matières
 
