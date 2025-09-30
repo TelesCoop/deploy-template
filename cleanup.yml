@@ -21,7 +21,7 @@
   handlers:
     - import_tasks: telescoop-deploy/handlers/nginx.yml
   tasks:
-    - import_tasks: telescoop-deploy/tasks/clean-django.yml
+    - import_tasks: telescoop-deploy/tasks/clean-backend.yml
     - name: Remove directories for feature branch
       file:
         path: "{{ item }}"

@@ -5,21 +5,21 @@
 
 - name: Install {{ project_slug }}-ctl
   template:
-    src: django-ctl.j2
+    src: backend-ctl.j2
     dest: "/usr/local/bin/{{ project_slug }}-ctl"
     mode: "0755"
 
-- name: Create django settings to {{ django_settings_path }}
+- name: Create backend settings to {{ backend_settings_path }}
   template:
-    src: "{{ template_django_settings_name|default('settings.ini.j2')}}"
-    dest: "{{ django_settings_path }}"
+    src: "{{ template_backend_settings_name|default('backend-settings.ini.j2')}}"
+    dest: "{{ backend_settings_path }}"
     owner: "{{ main_user }}"
     group: devops
     mode: 0660
 
 - name: Copy supervisord config to {{ supervisor_conf }}/{{ project_slug }}_backend.conf
   template:
-    src: django-supervisor.conf.j2
+    src: backend-supervisor.conf.j2
     dest: "{{ supervisor_conf }}/{{ project_slug }}_backend.conf"
     owner: root
     group: root
@@ -38,12 +38,12 @@
       {{ project_slug }}-ctl migrate
     }
   become: true
-  when: dedicated_database == true and (clonecode.changed or force_update is defined)
+  when: backend_is_django and dedicated_database == true and (clonecode.changed or force_update is defined)
 
 - name: Collect backend static files
   ansible.builtin.command:
     cmd: "{{ project_slug }}-ctl collectstatic --no-input"
-  when: clonecode.changed or force_update is defined
+  when: backend_is_django and (clonecode.changed or force_update is defined)
 
 - name: Restart {{ project_slug }} supervisor
   supervisorctl:

@@ -18,6 +18,9 @@ requests_timeout: 30
 # - define the var `database_password`
 # - install an additional Ansible module `ansible-galaxy collection install community.postgresql`
 database_provider: postgresql  # sqlite or postgresql
+database_use_postgis: false
+backend_is_django: true
 
 # can be SSR or static
 frontend_mode: SSR
+build_command: build  # usually `build-only` for a static vue project

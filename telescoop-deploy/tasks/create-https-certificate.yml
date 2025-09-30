@@ -21,7 +21,7 @@
   when: not ssl_exists.stat.exists
 
 - name: Create certificate
-  ansible.builtin.command: "certbot -n --nginx certonly -d {{ main_hostname }}"
+  ansible.builtin.command: "certbot -n --nginx certonly {% for hostname in https_hostnames %} -d {{ hostname }}{% endfor %}"
   args:
     creates: "/etc/letsencrypt/live/{{ main_hostname }}"
   ignore_errors: false

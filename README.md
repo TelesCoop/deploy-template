@@ -1,7 +1,10 @@
 
-# Template de déploiement Ansible - Django + Vue (ou Nuxt)
+# Template de déploiement Ansible pour projet web Front et/ou Back
 
-Template Ansible pour automatiser le déploiement et la maintenance d'applications web basées sur Django (backend) et Vue 3 (ou Nuxt) en front-end.
+Template Ansible pour automatiser le déploiement et la maintenance d'applications web.
+
+En général dans la pratique utilisé pour Django (back) et Vue 3 (front), mais s'adapte à d'autres cas.
+basées sur Django (backend) et Vue 3 (ou Nuxt) en front-end.
 
 **🎯 Objectif principal** : Adapter ce template pour déployer votre propre projet en quelques étapes simples.
 
@@ -24,28 +27,18 @@ Template Ansible pour automatiser le déploiement et la maintenance d'applicatio
 
 - **Ansible 2.9+** installé
 - **Git** avec accès aux repositories du projet
-- **Clé du vault Ansible** (`vault.key`) pour accéder aux variables chiffrées
+- **Clé du vault Ansible** (`vault.key`) pour accéder aux variables chiffrées (chez TelesCoop, cf Bitwarden)
 
 ### Sur les serveurs cibles
 
 - **Ubuntu/Debian** (testé sur Ubuntu 18.04+)
 - **Python 3** avec pip
 - **Accès SSH** avec privilèges sudo
-- **Git** installé
-- **Accès Internet** pour télécharger les dépendances
-
-### Accès réseau requis
-
-- **Port SSH** (par défaut 22, configurable)
-- **Port HTTP** (80) et **HTTPS** (443) pour le web
-- **Ports applicatifs** configurables pour backend et frontend
 
 ## Stack technique
 
-### Composants principaux (open-source)
+### Composants principaux
 
-- **Frontend** : Vue 3 (ou Nuxt) + Nginx
-- **Backend** : Django + gunicorn + supervisord
 - **Base de données** : PostgreSQL ou SQLite
 - **Serveur web** : Nginx
 

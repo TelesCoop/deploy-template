@@ -1,5 +1,0 @@
----
-- include_tasks: application.yml
-- include_tasks: deployment.yml
-- include_tasks: static_build.yml
-- include_tasks: ssr_build.yml

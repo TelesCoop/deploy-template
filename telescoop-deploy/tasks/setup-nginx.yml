@@ -8,6 +8,11 @@
 #  - redirect_hostnames
 #  - static_path
 ---
+- name: Install nginx
+  ansible.builtin.apt:
+    name:
+      - nginx
+
 - name: Install passlib python package, required by community.general.htpasswd
   ansible.builtin.apt:
     name:

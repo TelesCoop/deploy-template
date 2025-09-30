@@ -1,12 +1,10 @@
-###############################
-# STATIC CONFIG
 - name: Static config
   block:
     - name: Build frontend code for static rendering
       # yamllint disable-line rule:line-length
-      shell: "source /root/.nvm/nvm.sh && nvm exec {{ node_version.stdout }} npm run build-only"
+      shell: "source /root/.nvm/nvm.sh && nvm exec {{ node_version.stdout }} npm run {{ build_command }}"
       args:
-        chdir: "{{ vue_path }}"
+        chdir: "{{ frontend_dir }}"
         executable: /bin/bash
       when: clonecode.changed or force_update is defined
       register: build_code
@@ -27,7 +25,7 @@
 
     - name: update frontend static folder content
       synchronize:
-        src: "{{ vue_path }}/dist/"
+        src: "{{ frontend_dir }}/dist/"
         dest: "{{ static_path }}/"
         rsync_opts:
           - "-og"
@@ -37,15 +35,13 @@
 
   when: frontend_mode == 'static'
 
-###############################
-# SSR CONFIG
 - name: SSR config
   block:
     - name: Build frontend code for SSR
       # yamllint disable-line rule:line-length
-      shell: "source /root/.nvm/nvm.sh && nvm exec {{ node_version.stdout }} npm build"
+      shell: "source /root/.nvm/nvm.sh && nvm exec {{ node_version.stdout }} npm {{ build_command }}"
       args:
-        chdir: "{{ vue_path }}"
+        chdir: "{{ frontend_dir }}"
         executable: /bin/bash
       register: build_code
       when: clonecode.changed or force_update is defined

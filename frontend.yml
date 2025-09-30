@@ -22,10 +22,9 @@
       template:
         src: frontend.env
         dest: "{{ frontend_dir }}/.env"
-    - import_tasks: telescoop-deploy/tasks/build-vue.yml
+    - import_tasks: telescoop-deploy/tasks/build-frontend.yml
       vars:
         static_path: "{{ project_dir }}/frontend_static"
-        vue_path: "{{ frontend_dir }}"
     - import_tasks: telescoop-deploy/tasks/setup-nginx.yml
       vars:
         static_path: "{{ project_dir }}/frontend_static"
