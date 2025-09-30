@@ -3,10 +3,9 @@
 
 Template Ansible pour automatiser le déploiement et la maintenance d'applications web basées sur Django (backend) et Vue 3 (ou Nuxt) en front-end.
 
-
 **🎯 Objectif principal** : Adapter ce template pour déployer votre propre projet en quelques étapes simples.
 
-**⚠️ Note importante** : Ce template ne couvre pas la configuration initiale d'un nouveau serveur (utilisateurs, SSH, sécurité de base). Pour cela, utilisez le repository dédié : https://github.com/TelesCoop/ansible-ssh-config
+**⚠️ Note importante** : Ce template ne couvre pas la configuration initiale d'un nouveau serveur (utilisateurs, SSH, sécurité de base). Pour cela, utilisez le repository dédié : <https://github.com/TelesCoop/ansible-ssh-config>
 
 ## Table des matières
 
@@ -22,11 +21,13 @@ Template Ansible pour automatiser le déploiement et la maintenance d'applicatio
 ## Prérequis
 
 ### Sur votre machine locale
+
 - **Ansible 2.9+** installé
 - **Git** avec accès aux repositories du projet
 - **Clé du vault Ansible** (`vault.key`) pour accéder aux variables chiffrées
 
 ### Sur les serveurs cibles
+
 - **Ubuntu/Debian** (testé sur Ubuntu 18.04+)
 - **Python 3** avec pip
 - **Accès SSH** avec privilèges sudo
@@ -34,6 +35,7 @@ Template Ansible pour automatiser le déploiement et la maintenance d'applicatio
 - **Accès Internet** pour télécharger les dépendances
 
 ### Accès réseau requis
+
 - **Port SSH** (par défaut 22, configurable)
 - **Port HTTP** (80) et **HTTPS** (443) pour le web
 - **Ports applicatifs** configurables pour backend et frontend
@@ -41,12 +43,14 @@ Template Ansible pour automatiser le déploiement et la maintenance d'applicatio
 ## Stack technique
 
 ### Composants principaux (open-source)
+
 - **Frontend** : Vue 3 (ou Nuxt) + Nginx
 - **Backend** : Django + gunicorn + supervisord
 - **Base de données** : PostgreSQL ou SQLite
 - **Serveur web** : Nginx
 
 ### Services externes (optionnels)
+
 - **Mailgun** : envoi d'emails transactionnels
 - **Service S3** : stockage des sauvegardes de base de données
 - **Rollbar** : monitoring et tracking des erreurs en production
@@ -76,6 +80,7 @@ cp /chemin/vers/vault.key .
 ### 2. Configuration des variables principales
 
 Éditer `group_vars/all/vars.yml` :
+
 ```yaml
 organization_slug: votre-org
 base_project_slug: mon-projet
@@ -95,11 +100,13 @@ frontend_repo: git@github.com:votre-org/mon-projet-fullstack.git
 ### 3. Configuration des environnements
 
 Éditer `group_vars/all/cross_env_vars.yml` pour définir :
+
 - Ports SSH personnalisés
 - Domaines publics
 - Configuration réseau
 
 Modifier le fichier `hosts` :
+
 ```ini
 [prod]
 votre-serveur.com:22 ansible_user=ubuntu
@@ -144,22 +151,30 @@ contact_email: "admin@votre-domaine.com"
 ### 5. Personnalisation avancée
 
 #### Mode frontend
+
 Modifier `frontend_mode` dans `vars.yml` :
+
 - `static` : génération statique (JAMstack)
 - `SSR` : rendu côté serveur
 
 #### Base de données
+
 Changer `database_provider` :
+
 - `sqlite` : pour les petits projets
 - `postgresql` : pour la production
 
 #### Repositories
+
 Adapter les URLs de dépôts dans `vars.yml` selon votre structure :
+
 - Mono-repo : `is_mono_repo: true`
 - Repos séparés : `is_mono_repo: false`
 
 #### Logique mono-repo
+
 Lorsque `is_mono_repo` est activé, le template adapte automatiquement sa logique de déploiement :
+
 - **Repository unique** : Le même dépôt contient le backend et le frontend
 - **Branches partagées** : Utilisation de la même branche pour backend et frontend
 - **Chemins relatifs** : Les chemins de build sont adaptés pour pointer vers les sous-dossiers appropriés
@@ -195,7 +210,7 @@ ansible-playbook frontend.yml
 ansible-playbook backend.yml && ansible-playbook frontend.yml
 ```
 
-### Redéploiement 
+### Redéploiement
 
 ```bash
 # Mise à jour du backend uniquement
@@ -210,9 +225,10 @@ ansible-playbook backend.yml -e force_update=1
 
 ## Commandes de maintenance
 
-Notes : toutes les commandes ci-dessous peuvent aussi être exécutées sur le serveur. 
+Notes : toutes les commandes ci-dessous peuvent aussi être exécutées sur le serveur.
 
 ### Surveillance et logs
+
 ```bash
 # Vérifier le statut des services
 ansible prod -m shell -a "supervisorctl status"
@@ -222,6 +238,7 @@ ansible prod -m shell -a "tail -f /var/log/supervisor/backend-*.log"
 ```
 
 ### Gestion de la base de données et Django
+
 ```bash
 # Script de contrôle backend (remplacez les variables par vos valeurs)
 # Sauvegarde manuelle
@@ -241,6 +258,7 @@ ansible prod -m shell -a "sudo /org/projet/projet-ctl createsuperuser"
 ```
 
 ### Redémarrage des services
+
 ```bash
 # Redémarrer tous les services
 ansible prod -m shell -a "supervisorctl restart all"
@@ -281,6 +299,7 @@ ansible prod -m shell -a "supervisorctl restart frontend-*"
 - **Rollbar** : Tracking des erreurs en production (si configuré)
 
 #### Consulter les logs Django
+
 ```bash
 # Logs en temps réel
 ansible prod -m shell -a "tail -f /var/log/votre-org/votre-projet/backend.log"
@@ -295,6 +314,7 @@ ansible prod -m shell -a "supervisorctl status"
 ## Architecture des rôles
 
 ### `backend`
+
 - **Packages système** : Python 3, nginx, supervisord, PostgreSQL (si utilisé)
 - **Utilisateur système** : Création d'un utilisateur dédié avec UID personnalisé
 - **Base de données** : Configuration PostgreSQL ou SQLite selon `database_provider`
@@ -309,6 +329,7 @@ ansible prod -m shell -a "supervisorctl status"
 - **Sauvegardes** : Tâche cron quotidienne vers S3
 
 ### `frontend`
+
 - **Node.js** : Installation via NVM (version depuis `.nvmrc`)
 - **Code source** : Clonage du repository frontend
 - **Dépendances** : Installation via npm/yarn
@@ -322,7 +343,8 @@ ansible prod -m shell -a "supervisorctl status"
 
 ### Problèmes courants
 
-**Service ne démarre pas**
+#### Service ne démarre pas
+
 ```bash
 # Vérifier les logs supervisord
 ansible prod -m shell -a "tail -f /var/log/supervisor/supervisord.log"
@@ -331,7 +353,8 @@ ansible prod -m shell -a "tail -f /var/log/supervisor/supervisord.log"
 ansible prod -m shell -a "systemctl restart supervisor"
 ```
 
-**Problème de permissions**
+#### Problème de permissions
+
 ```bash
 # Vérifier les permissions des dossiers
 ansible prod -m shell -a "ls -la /votre-org/votre-projet/"
@@ -340,7 +363,8 @@ ansible prod -m shell -a "ls -la /votre-org/votre-projet/"
 ansible-playbook backend.yml --tags permissions
 ```
 
-**Erreur de base de données**
+#### Erreur de base de données
+
 ```bash
 # Vérifier la connexion PostgreSQL
 ansible prod -m shell -a "sudo -u postgres psql -l"
