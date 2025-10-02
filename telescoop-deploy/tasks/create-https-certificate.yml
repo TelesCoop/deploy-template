@@ -29,7 +29,7 @@
   tags:
     - nginx
     - certbot
-  when: not ssl_exists.stat.exists
+  when: not ssl_exists.stat.exists or force_create_certificate is defined
 
 - name: Remove nginx config
   ansible.builtin.command: rm /etc/nginx/sites-enabled/https-{{ main_hostname }}

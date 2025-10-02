@@ -51,8 +51,8 @@
 
     - name: Copy supervisord config to {{ supervisor_conf }}/{{ project_slug }}_backend.conf
       template:
-        src: frontend-supervisor.conf.j2
-        dest: "{{ supervisor_conf }}/{{ project_slug }}_frontend.conf"
+        src: js-app-supervisor.conf.j2
+        dest: "{{ supervisor_conf }}/{{ project_slug }}_js-app.conf"
         owner: root
         group: root
         mode: 0644

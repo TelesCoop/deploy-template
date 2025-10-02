@@ -1,17 +1,17 @@
 - name: Remove supervisor configuration
   file:
-    path: "{{ supervisor_conf }}/{{ project_slug }}_backend.conf"
+    path: "{{ supervisor_conf }}/{{ project_slug }}-python.conf"
     state: absent
 
 - name: Stop supervisor process
   supervisorctl:
-    name: "{{ project_slug }}-backend"
+    name: "{{ project_slug }}-python"
     state: stopped
   ignore_errors: yes
 
 - name: Remove supervisor process
   supervisorctl:
-    name: "{{ project_slug }}-backend"
+    name: "{{ project_slug }}-python"
     state: absent
 
 - name: Remove control script

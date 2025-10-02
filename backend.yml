@@ -23,22 +23,8 @@
         - import_tasks: telescoop-deploy/tasks/install-database.yml
           vars:
             database_password: "{{ vault_database_password }}"
-
-        - name: Install and setup postgis to postgresql
-          block:
-            - name: Install postgis
-              apt:
-                name:
-                  - postgresql-14-postgis-3
-            - name: Adds postgis extension to the database {{ project_slug }}
-              community.postgresql.postgresql_ext:
-                name: postgis
-                login_db: "{{ database_user }}"
-              become: true
-              become_user: postgres
-          when: database_provider == "postgresql" and database_use_postgis
       when: branch is not defined
-    - import_tasks: telescoop-deploy/tasks/install-and-update-backend.yml
+    - import_tasks: telescoop-deploy/tasks/install-and-update-python-app.yml
       vars:
         backend_settings_path: /etc/{{ organization_slug }}/{{ project_slug }}/settings.ini
         backend_workers: 1
@@ -46,4 +32,5 @@
         allow_backup: true
         database_password: "{{ vault_database_password }}"
         # If you use custom template, do not name it settings.j2
-        template_backend_settings_name: "settings.ini.j2"
+        # template_backend_settings_name: "settings.ini.j2"
+    - import_tasks: telescoop-deploy/tasks/update-django-app.yml
