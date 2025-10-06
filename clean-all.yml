@@ -1,0 +1,15 @@
+---
+- name: Clean everything
+  hosts: all
+  vars:
+  handlers:
+    - import_tasks: telescoop-deploy/handlers/nginx.yml
+  tasks:
+    - import_tasks: telescoop-deploy/tasks/clean-backend.yml
+      vars:
+        database_name: "{{ project_slug }}"
+        database_user: "{{ project_slug }}"
+        dedicated_database: true
+    - import_tasks: telescoop-deploy/tasks/clean-nginx.yml
+    - import_tasks: telescoop-deploy/tasks/clean-user-and-directories.yml
+    - import_tasks: telescoop-deploy/tasks/clean-python-venv.yml

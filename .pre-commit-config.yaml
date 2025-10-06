@@ -30,6 +30,7 @@ repos:
       - id: json-check-syntax
       - id: json-pretty-format
       - id: markdown-lint
+        args: ["-r", "~MD013,~MD005,~MD007,~MD022"]
       - id: perl-critic
       - id: perl-tidy
       - id: rst-linter
@@ -42,7 +43,8 @@ repos:
       - id: toml-check-syntax
       - id: xml-check-syntax
       - id: yaml-check-syntax
-      - id: yaml-yamllint
-        args:
-          - --config-data
-          - "{extends: default, rules: {document-start: disable, line-length: {max: 100}}}"
+  - repo: https://github.com/adrienverge/yamllint.git
+    hooks:
+      - id: yamllint
+        args: ["-c", ".yamllint"]
+    rev: v1.37.1

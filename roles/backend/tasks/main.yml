@@ -1,7 +1,0 @@
----
-- include_tasks: packages.yml
-- include_tasks: database.yml
-- include_tasks: user_and_directories.yml
-- include_tasks: application.yml
-- include_tasks: deployment.yml
-- include_tasks: cron.yml

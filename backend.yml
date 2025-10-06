@@ -1,5 +1,36 @@
 ---
-
-- hosts: all
-  roles:
-    - backend
+- name: Setup and launch backend
+  hosts: all
+  vars:
+    backend_path: "{{ project_dir }}/backend/back"
+  handlers:
+    - import_tasks: telescoop-deploy/handlers/nginx.yml
+  tasks:
+    - import_tasks: telescoop-deploy/tasks/create-https-certificate.yml
+    - import_tasks: telescoop-deploy/tasks/setup-user-and-directories.yml
+    - import_tasks: telescoop-deploy/tasks/setup-and-clone-git.yml
+      vars:
+        identity_file_path: "{{ backend_identity_file_path }}"
+        repo: "{{ backend_repo }}"
+        git_track_submodules: false
+        clone_path: "{{ backend_path }}/../"
+        branch: "{{ backend_branch }}"
+    - import_tasks: telescoop-deploy/tasks/install-python-venv.yml
+      vars:
+        requirements: "{{ backend_path }}/requirements.txt"
+    - name: Install and setup database for prod and preprod only
+      block:
+        - import_tasks: telescoop-deploy/tasks/install-database.yml
+          vars:
+            database_password: "{{ vault_database_password }}"
+      when: branch is not defined
+    - import_tasks: telescoop-deploy/tasks/install-and-update-python-app.yml
+      vars:
+        backend_settings_path: /etc/{{ organization_slug }}/{{ project_slug }}/settings.ini
+        backend_workers: 1
+        dedicated_database: "{{ branch is not defined }}"
+        allow_backup: true
+        database_password: "{{ vault_database_password }}"
+        # If you use custom template, do not name it settings.j2
+        # template_backend_settings_name: "settings.ini.j2"
+    - import_tasks: telescoop-deploy/tasks/update-django-app.yml
