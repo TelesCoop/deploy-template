@@ -1,0 +1,4 @@
+maintenance_page: "maintenance.html"
+maintenance_page_path: "{{ frontend_static_path }}/{{ maintenance_page }}"
+# maintenance_logo: "logo.png"  # Filename for the logo on the server
+# maintenance_logo_source: "<path_to_dir_of_logo>/{{ maintenance_logo }}"  # Path to the logo file on your local machine

@@ -1,0 +1,32 @@
+---
+- name: Remove default nginx config
+  file:
+    state: absent
+    dest: /etc/nginx/sites-enabled/default
+  notify:
+    - reload nginx
+- name: Deploy maintenance page
+  template:
+    src: "{{ maintenance_page }}.j2"
+    dest: "{{ maintenance_page_path }}"
+    owner: "{{ main_user }}"
+    group: "{{ main_user }}"
+    mode: 0644
+
+- name: Copy maintenance logo if defined
+  copy:
+    src: "{{ maintenance_logo_source }}"
+    dest: "{{ frontend_static_path }}/{{ maintenance_logo }}"
+    owner: "{{ main_user }}"
+    group: "{{ main_user }}"
+    mode: 0644
+  when: maintenance_logo is defined and maintenance_logo_source is defined
+
+- name: Configure nginx for maintenance mode
+  template:
+    src: nginx-maintenance.conf.j2
+    dest: /etc/nginx/sites-enabled/{{ project_slug }}
+    owner: root
+    group: root
+    mode: 0644
+  notify: reload nginx
