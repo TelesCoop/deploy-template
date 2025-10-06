@@ -152,9 +152,7 @@ contact_email: "support@votre-domaine.com"
 
 **Remarques** :
 
-- Le logo sera affiché au-dessus de l'icône de maintenance
-- Formats supportés : PNG, JPG, JPEG, GIF, SVG, ICO
-- Dimensions recommandées : max 200px de largeur, 100px de hauteur
+- Le logo s’affiche au-dessus de l’icône de maintenance lorsque son chemin est configuré. Ce chemin correspond au chemin du logo sur le serveur dans le dossier frontend_static. Un premier build du frontend via Ansible est nécessaire pour que le logo soit disponible.
 - Si `contact_email` est défini dans les variables, il sera affiché sur la page
 
 ## Configuration avancée
