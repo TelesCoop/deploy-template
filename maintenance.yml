@@ -6,23 +6,4 @@
   tasks:
     - import_tasks: telescoop-deploy/tasks/create-https-certificate.yml
     - import_tasks: telescoop-deploy/tasks/setup-user-and-directories.yml
-
-    - name: Deploy maintenance page
-      template:
-        src: telescoop-deploy/tasks/templates/maintenance.html.j2
-        dest: "{{ frontend_static_path }}/{{ maintenance_page }}"
-        owner: "{{ main_user }}"
-        group: "{{ main_user }}"
-        mode: 0644
-      vars:
-        maintenance_page: "maintenance.html"
-
-    - name: Configure nginx for maintenance mode
-      template:
-        src: telescoop-deploy/tasks/templates/nginx-maintenance.conf.j2
-        dest: /etc/nginx/sites-enabled/{{ project_slug }}
-        owner: root
-        group: root
-        mode: 0644
-      notify:
-        - Reload nginx
+    - import_tasks: telescoop-deploy/tasks/setup-maintenance.yml

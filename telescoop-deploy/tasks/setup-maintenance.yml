@@ -1,0 +1,31 @@
+# Setup maintenance mode
+# Deploys a maintenance page and configures nginx to serve it
+#
+# Required vars:
+#  - frontend_static_path
+#  - main_user
+#  - project_slug
+#
+# Optional vars:
+#  - maintenance_logo_source: path to logo file on frontend_static
+#  - contact_email: email to display on maintenance page
+---
+- name: Deploy maintenance page
+  template:
+    src: templates/maintenance.html.j2
+    dest: "{{ frontend_static_path }}/{{ maintenance_page }}"
+    owner: "{{ main_user }}"
+    group: "{{ main_user }}"
+    mode: 0644
+  vars:
+    maintenance_page: "maintenance.html"
+
+- name: Configure nginx for maintenance mode
+  template:
+    src: templates/nginx-maintenance.conf.j2
+    dest: /etc/nginx/sites-enabled/{{ project_slug }}
+    owner: root
+    group: root
+    mode: 0644
+  notify:
+    - Reload nginx
