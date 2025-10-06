@@ -155,6 +155,16 @@ contact_email: "support@votre-domaine.com"
 - Le logo s’affiche au-dessus de l’icône de maintenance lorsque son chemin est configuré. Ce chemin correspond au chemin du logo sur le serveur dans le dossier frontend_static. Un premier build du frontend via Ansible est nécessaire pour que le logo soit disponible.
 - Si `contact_email` est défini dans les variables, il sera affiché sur la page
 
+## Monitoring et logs
+
+- **Logs centralisés** : `/var/log/votre-org/votre-projet/`
+  - `backend.log` : Logs de l'application Django
+  - `frontend.log` : Logs frontend (mode SSR uniquement)
+  - `nginx-access.log` et `nginx-error.log` : Logs du serveur web
+- **Supervision** : supervisord pour le monitoring des processus
+- **Rotation automatique** : Configuration logrotate pour éviter la saturation disque
+- **Rollbar** : Tracking des erreurs en production (si configuré)
+
 ## Dépannage
 
 ### Problèmes courants
