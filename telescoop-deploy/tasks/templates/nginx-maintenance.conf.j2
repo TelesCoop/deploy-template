@@ -40,16 +40,6 @@ server {
         root {{ frontend_static_path }};
         try_files /{{ maintenance_page }} =503;
     }
-
-    # Optional: Allow access from specific IPs (uncomment and configure if needed)
-    # set $maintenance 1;
-    # if ($remote_addr ~ "^(YOUR_IP_ADDRESS)$") {
-    #     set $maintenance 0;
-    # }
-    # if ($maintenance = 0) {
-    #     return 404; # Or proxy to normal backend
-    # }
-
 }
 
 {% if https_enabled %}
