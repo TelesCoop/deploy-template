@@ -134,7 +134,7 @@ Pour activer le mode maintenance sur le site :
 # Activer le mode maintenance
 ansible-playbook maintenance.yml
 
-# Désactiver le mode maintenance (redéployer le frontend)
+# Désactiver le mode maintenance (redéployer nginx avec le frontend.yml par exemple)
 ansible-playbook frontend.yml
 ```
 

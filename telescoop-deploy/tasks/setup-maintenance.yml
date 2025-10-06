@@ -2,9 +2,10 @@
 # Deploys a maintenance page and configures nginx to serve it
 #
 # Required vars:
-#  - frontend_static_path
+#  - static_path (usually frontend_static_path)
 #  - main_user
 #  - project_slug
+#  - nginx_conf_filename
 #
 # Optional vars:
 #  - maintenance_logo_source: path to logo file on frontend_static
@@ -12,18 +13,16 @@
 ---
 - name: Deploy maintenance page
   template:
-    src: templates/maintenance.html.j2
-    dest: "{{ frontend_static_path }}/{{ maintenance_page }}"
+    src: "{{ maintenance_page }}.j2"
+    dest: "{{ static_path }}/{{ maintenance_page | default('maintenance.html') }}"
     owner: "{{ main_user }}"
     group: "{{ main_user }}"
     mode: 0644
-  vars:
-    maintenance_page: "maintenance.html"
 
-- name: Configure nginx for maintenance mode
+- name: Copy nginx config
   template:
-    src: templates/nginx-maintenance.conf.j2
-    dest: /etc/nginx/sites-enabled/{{ project_slug }}
+    src: nginx.conf.j2
+    dest: /etc/nginx/sites-enabled/{{ nginx_conf_filename }}
     owner: root
     group: root
     mode: 0644

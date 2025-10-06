@@ -23,4 +23,5 @@ backend_is_django: true
 frontend_mode: SSR
 build_command: build # usually `build-only` for a static vue project
 
+maintenance_page: "maintenance.html"
 # maintenance_logo_source: "/chemin/local/vers/logo.png" # Chemin du logo sur le frontend_static (Optionnel)
