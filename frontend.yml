@@ -24,10 +24,10 @@
         dest: "{{ frontend_dir }}/.env"
     - import_tasks: telescoop-deploy/tasks/build-js-app.yml
       vars:
-        static_path: "{{ project_dir }}/frontend_static"
+        static_path: "{{ frontend_static_path }}"
     - import_tasks: telescoop-deploy/tasks/setup-nginx.yml
       vars:
-        static_path: "{{ project_dir }}/frontend_static"
+        static_path: "{{ frontend_static_path}}"
         has_backend: true
         use_password: false
         nginx_conf_filename: "{{ project_slug }}"

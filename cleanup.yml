@@ -8,7 +8,7 @@
     repo: "{{ backend_repo }}"
     identity_file_path: "{{ backend_identity_file_path }}"
     git_track_submodules: false
-    static_path: "{{ project_dir }}/frontend_static"
+    static_path: "{{ frontend_static_path }}"
     branch: "{{ frontend_branch }}"
     has_backend: true
     use_password: false
