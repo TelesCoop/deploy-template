@@ -144,8 +144,7 @@ La page de maintenance peut être personnalisée via les variables suivantes dan
 
 ```yaml
 # Logo personnalisé (optionnel)
-maintenance_logo: "logo.png" # Nom du fichier logo sur le serveur
-maintenance_logo_source: "/chemin/local/vers/logo.png" # Chemin du logo sur votre machine
+maintenance_logo_source: "/chemin/local/vers/logo.png" # Chemin du logo sur le frontend_static
 
 # Email de contact (optionnel)
 contact_email: "support@votre-domaine.com"
