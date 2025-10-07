@@ -23,7 +23,7 @@
     - import_tasks: telescoop-deploy/tasks/clean-backend.yml
     - name: Remove directories for feature branch
       file:
-        path: "{{ item }}"3
+        path: "{{ item }}"
         state: absent
       loop:
         - "/{{ organization_slug }}/{{ project_slug }}"
