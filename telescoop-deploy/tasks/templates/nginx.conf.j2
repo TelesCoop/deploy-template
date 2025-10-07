@@ -57,7 +57,7 @@ server {
         root {{ static_path }};
         try_files /{{ maintenance_page | default('maintenance.html') }} =503;
     }
-    {% else %}
+    {% else %} {# no maintenance undergoing #}
     # gzip compression
     gzip on;
     gzip_vary on;
