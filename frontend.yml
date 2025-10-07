@@ -15,6 +15,7 @@
         branch: "{{ frontend_branch }}"
         git_track_submodules: false
         identity_file_path: "{{ backend_identity_file_path }}"
+      when: has_backend | default(true)
     - import_tasks: telescoop-deploy/tasks/setup-node-dependencies.yml
       vars:
         current_path: "{{ frontend_dir }}"
