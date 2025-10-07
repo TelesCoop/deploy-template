@@ -28,7 +28,6 @@
     - import_tasks: telescoop-deploy/tasks/setup-nginx.yml
       vars:
         static_path: "{{ frontend_static_path}}"
-        has_backend: true
         use_password: false
         nginx_conf_filename: "{{ project_slug }}"
         server_uris_passed_to_backend:

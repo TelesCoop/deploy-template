@@ -10,7 +10,6 @@
     git_track_submodules: false
     static_path: "{{ frontend_static_path }}"
     branch: "{{ frontend_branch }}"
-    has_backend: true
     use_password: false
     server_uris_passed_to_backend:
       - admin
@@ -24,7 +23,7 @@
     - import_tasks: telescoop-deploy/tasks/clean-backend.yml
     - name: Remove directories for feature branch
       file:
-        path: "{{ item }}"
+        path: "{{ item }}"3
         state: absent
       loop:
         - "/{{ organization_slug }}/{{ project_slug }}"
