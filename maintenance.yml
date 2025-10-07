@@ -11,3 +11,4 @@
         static_path: "{{ frontend_static_path }}"
         nginx_conf_filename: "{{ project_slug }}"
         maintenance_mode: true
+        use_password: false
