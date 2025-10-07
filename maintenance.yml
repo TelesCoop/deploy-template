@@ -1,0 +1,14 @@
+---
+- name: Enable maintenance mode
+  hosts: all
+  handlers:
+    - import_tasks: telescoop-deploy/handlers/nginx.yml
+  tasks:
+    - import_tasks: telescoop-deploy/tasks/create-https-certificate.yml
+    - import_tasks: telescoop-deploy/tasks/setup-user-and-directories.yml
+    - import_tasks: telescoop-deploy/tasks/setup-maintenance.yml
+      vars:
+        static_path: "{{ frontend_static_path }}"
+        nginx_conf_filename: "{{ project_slug }}"
+        maintenance_mode: true
+        use_password: false

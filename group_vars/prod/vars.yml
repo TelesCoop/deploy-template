@@ -1,5 +1,5 @@
-backend_application_port: 8000  # must be unique for each project on the same server
-frontend_application_port: 3000  # must be unique for each project on the same server
+backend_application_port: 8000 # must be unique for each project on the same server
+frontend_application_port: 3000 # must be unique for each project on the same server
 environment_suffix: "_prod"
 project_slug: "{{ base_project_slug }}{{ environment_suffix }}"
 
@@ -20,6 +20,7 @@ https_hostnames: "{{ all_hostnames }}"
 # - run `certbot --nginx` manually on the server
 https_enabled: false
 project_dir: "{{project_base_dir}}{{ environment_suffix }}"
+frontend_static_path: "{{ project_dir }}/frontend_static"
 backend_static_path: "{{ project_dir }}/backend_static"
 
 frontend_branch: main

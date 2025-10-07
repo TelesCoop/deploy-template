@@ -1,4 +1,3 @@
-
 # Template de déploiement Ansible pour projet web Front et/ou Back
 
 Template Ansible pour automatiser le déploiement et la maintenance d'applications web.
@@ -126,6 +125,35 @@ ansible prod -m shell -a "supervisorctl restart {projet}_prod-backend/frontend"
 # Redémarrer nginx
 ansible prod -m shell -a "systemctl restart nginx"
 ```
+
+### Mode maintenance
+
+Pour activer le mode maintenance sur le site :
+
+```bash
+# Activer le mode maintenance
+ansible-playbook maintenance.yml
+
+# Désactiver le mode maintenance (redéployer nginx avec le frontend.yml par exemple)
+ansible-playbook frontend.yml
+```
+
+#### Personnalisation de la page de maintenance
+
+La page de maintenance peut être personnalisée via les variables suivantes dans `roles/maintenance/vars/main.yml` :
+
+```yaml
+# Logo personnalisé (optionnel)
+maintenance_logo_source: "/chemin/local/vers/logo.png" # Chemin du logo sur le frontend_static
+
+# Email de contact (optionnel)
+contact_email: "support@votre-domaine.com"
+```
+
+**Remarques** :
+
+- Le logo s’affiche au-dessus de l’icône de maintenance lorsque son chemin est configuré. Ce chemin correspond au chemin du logo sur le serveur dans le dossier frontend_static. Un premier build du frontend via Ansible est nécessaire pour que le logo soit disponible.
+- Si `contact_email` est défini dans les variables, il sera affiché sur la page
 
 ## Monitoring et logs
 
