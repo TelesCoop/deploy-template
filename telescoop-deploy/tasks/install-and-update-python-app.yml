@@ -11,7 +11,7 @@
 
 - name: Create backend settings to {{ backend_settings_path }}
   template:
-    src: "{{ template_backend_settings_name|default('backend-settings.ini.j2')}}"
+    src: "{{ template_backend_settings_name|default('settings.ini.j2')}}"
     dest: "{{ backend_settings_path }}"
     owner: "{{ main_user }}"
     group: devops

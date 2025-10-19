@@ -1,6 +1,6 @@
-[program:{{ project_slug }}-backend]
+[program:{{ project_slug }}-python]
 directory = {{ backend_path }} ;
-{% if custom_backend_command %}
+{% if custom_backend_command is defined %}
 command = {{ custom_backend_command }} ;
 {% else %}
 command = {{ venv.path }}/bin/gunicorn {{ django_project_name }}.wsgi --name "{{ project_slug }}" --timeout {{ requests_timeout }} --workers={{ backend_workers }} --bind=localhost:{{ backend_application_port }} --user="{{ main_user }}"
