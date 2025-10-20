@@ -22,6 +22,7 @@ https_enabled: false
 project_dir: "{{project_base_dir}}{{ environment_suffix }}"
 frontend_static_path: "{{ project_dir }}/frontend_static"
 backend_static_path: "{{ project_dir }}/backend_static"
+backend_media_path: "{{ project_dir }}/backend/back/media"
 
 frontend_branch: main
 backend_branch: main
