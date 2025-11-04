@@ -43,6 +43,7 @@
     version: "{{ branch }}"
     # git submodule should have master branch
     track_submodules: "{{ git_track_submodules }}"
+    recursive: "{{ git_track_submodules }}"
     remote: origin
   become_user: "{{ main_user }}"
   register: clonecode

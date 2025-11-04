@@ -69,10 +69,13 @@ server {
         autoindex off;
         alias {{ backend_static_path }};
     }
+
+    {% if backend_media_path is defined %}
     location /media  {
         autoindex off;
         alias {{ backend_media_path }};
     }
+    {% endif %}
 
     proxy_read_timeout {{ requests_timeout }};
     proxy_connect_timeout {{ requests_timeout }};
