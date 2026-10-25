@@ -23,17 +23,17 @@ jobs:
     runs-on: ubuntu-22.04
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
 
       - name: Set up Python
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v7
         with:
           python-version: "3.10"
           cache: "pip"
       - run: pip install -r back/requirements.txt
 
       - name: Cache Node.js dependencies
-        uses: actions/cache@v3
+        uses: actions/cache@v6
         with:
           path: ./front/node_modules
           key: ${{ runner.os }}-node-${{ hashFiles('front/package-lock.json') }}
@@ -55,10 +55,10 @@ jobs:
     needs: setup
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
 
       - name: Set up Python
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v7
         with:
           python-version: "3.10"
           cache: "pip"
@@ -84,7 +84,7 @@ jobs:
           EOF
 
       - name: Restore Node.js cache
-        uses: actions/cache@v3
+        uses: actions/cache@v6
         with:
           path: ./front/node_modules
           key: ${{ runner.os }}-node-${{ hashFiles('front/package-lock.json') }}
@@ -118,7 +118,7 @@ jobs:
           fi
 
       - name: Create coverage badge
-        uses: schneegans/dynamic-badges-action@v1.7.0
+        uses: schneegans/dynamic-badges-action@v1.9.0
         with:
           auth: ${{ secrets.GIST_SECRET }}
           gistID: 86d9b33a236f4e03bca8799858fc7f6d
@@ -131,15 +131,15 @@ jobs:
     runs-on: ubuntu-22.04
     needs: setup
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - name: Install node
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v7
         with:
           node-version-file: ./front/.nvmrc
           cache: "npm"
           cache-dependency-path: ./front/package-lock.json
       - name: Restore Node.js cache
-        uses: actions/cache@v3
+        uses: actions/cache@v6
         with:
           path: ./front/node_modules
           key: ${{ runner.os }}-node-${{ hashFiles('front/package-lock.json') }}
@@ -152,15 +152,15 @@ jobs:
     runs-on: ubuntu-22.04
     needs: [setup, node-setup]
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - name: Set up Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v7
         with:
           node-version-file: ./front/.nvmrc
           cache: "npm"
           cache-dependency-path: ./front/package-lock.json
       - name: Restore Node.js cache
-        uses: actions/cache@v3
+        uses: actions/cache@v6
         with:
           path: ./front/node_modules
           key: ${{ runner.os }}-node-${{ hashFiles('front/package-lock.json') }}
@@ -216,7 +216,7 @@ jobs:
         working-directory: ./front
 
       - name: Create frontend coverage badge
-        uses: schneegans/dynamic-badges-action@v1.7.0
+        uses: schneegans/dynamic-badges-action@v1.9.0
         with:
           auth: ${{ secrets.GIST_SECRET }}
           gistID: 767df5613fc8e7b99ac2a773f5253463
@@ -229,9 +229,9 @@ jobs:
     runs-on: ubuntu-22.04
     needs: setup
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - name: Set up Python
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v7
         with:
           python-version: "3.10"
           cache: "pip"
@@ -265,13 +265,13 @@ jobs:
         run: python manage.py runserver localhost:8000 &
         working-directory: ./back
       - name: Set up Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v7
         with:
           node-version-file: ./front/.nvmrc
           cache: "npm"
           cache-dependency-path: ./front/package-lock.json
       - name: Restore Node.js cache from node-setup
-        uses: actions/cache@v3
+        uses: actions/cache@v6
         with:
           path: ./front/node_modules
           key: ${{ runner.os }}-node-${{ hashFiles('front/package-lock.json') }}
@@ -283,7 +283,7 @@ jobs:
         run: npm run build
         working-directory: "./front"
       - name: Run e2e tests
-        uses: cypress-io/github-action@v6
+        uses: cypress-io/github-action@v7
         with:
           start: npm run preview
           browser: chrome
@@ -292,7 +292,7 @@ jobs:
         env:
           CYPRESS_COVERAGE: true
       - name: Upload cypress screenshots
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         if: failure()
         with:
           name: cypress-screenshot
@@ -305,10 +305,10 @@ jobs:
     needs: [setup]
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
 
       - name: Set up Python doc
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v7
         with:
           python-version: "3.10"
           cache: "pip"
