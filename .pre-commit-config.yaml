@@ -47,4 +47,4 @@ repos:
     hooks:
       - id: yamllint
         args: ["-c", ".yamllint"]
-    rev: v1.37.1
+    rev: v1.38.0
