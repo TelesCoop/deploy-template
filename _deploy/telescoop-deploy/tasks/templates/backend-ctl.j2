@@ -1,19 +1,21 @@
 #!/bin/bash
-. "{{ venv.path }}/bin/activate"
+# Run a Django management command of {{ project_slug }} as {{ main_user }}: {{ project_slug }}-ctl <command> [args...]
+set -euo pipefail
 
-export DJANGO_SETTINGS_MODULE={{ django_project_name }}.settings
-export CONFIG_PATH="{{ backend_settings_path }}"
+cd "{{ backend_path }}"
+manage=(
+    env
+    PATH="{{ venv.path }}/bin:$PATH"
+    VIRTUAL_ENV="{{ venv.path }}"
+    DJANGO_SETTINGS_MODULE="{{ django_project_name }}.settings"
+    CONFIG_PATH="{{ backend_settings_path }}"
+    "{{ venv.path }}/bin/python" manage.py "$@"
+)
 
-pushd {{ backend_path }} > /dev/null
 if [ "$(id -u)" -eq 0 ]; then
-  # If run as root, execute command as main_user while preserving environment variables
-  exec su {{ main_user }} -c "DJANGO_SETTINGS_MODULE='$DJANGO_SETTINGS_MODULE' CONFIG_PATH='$CONFIG_PATH' {{ venv.path }}/bin/python manage.py $*"
-elif [ "$(whoami)" = "{{ main_user }}" ]; then
-  # If run as main_user, execute command normally
-  exec {{ venv.path }}/bin/python manage.py $*
-else
-  # If run as neither root nor main_user, display warning and exit
-  echo "Error: This script must be run as root or {{ main_user }}. You can use sudo."
-  exit 1
+    exec runuser -u "{{ main_user }}" -- "${manage[@]}"
+elif [ "$(id -un)" = "{{ main_user }}" ]; then
+    exec "${manage[@]}"
 fi
-popd > /dev/null
+echo "Error: run this script as root or {{ main_user }} (for instance with sudo)." >&2
+exit 1
