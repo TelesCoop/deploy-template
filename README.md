@@ -13,6 +13,12 @@ Voir [`_deploy/README.md`](/_deploy/README.md)
 
 Voir [`_github/README.md](/_github/README.md)
 
+Exemple de configuration Dependabot (uv, npm, GitHub Actions) : [`_github/dependabot.yml`](/_github/dependabot.yml)
+
+## Backend Python (uv, ruff)
+
+Voir [`_python/README.md`](/_python/README.md)
+
 ## Comment déployer un projet TelesCoop
 
 Check-list des choses à faire :
@@ -21,4 +27,3 @@ Check-list des choses à faire :
 - Ajouter la clé SSH de déploiement généré par le script Ansible à Github (pour pouvoir faire un `git pull` depuis le serveur) ;
 - Ajouter les entrées de monitoring côté Uptime, à savoir : monitoring du site, de la backup et du `/health-check`, pour les environnements de prod & de pré-prod.
 - Mettre en place la backup automatisée ;
-
