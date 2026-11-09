@@ -31,8 +31,8 @@
       with_items: "{{ hba_files.files }}"
 
     - name: Install psycopg2 on system
-      pip:
-        name: psycopg2
+      apt:
+        name: python3-psycopg2
 
     - name: Create database user {{ database_user }}
       community.postgresql.postgresql_user:
