@@ -1,0 +1,32 @@
+# Install a pinned uv release, verified against its published checksum
+# Required vars:
+#  - uv_version
+#  - uv_platform
+---
+- name: Read installed uv version
+  ansible.builtin.command:
+    cmd: /usr/local/bin/uv --version
+  register: installed_uv
+  changed_when: false
+  failed_when: false
+
+- name: Install uv {{ uv_version }}
+  when: installed_uv.rc != 0 or installed_uv.stdout.split()[1] != uv_version
+  block:
+    - name: Download uv {{ uv_version }}
+      ansible.builtin.get_url:
+        url: "https://github.com/astral-sh/uv/releases/download/{{ uv_version }}/uv-{{ uv_platform }}.tar.gz"
+        checksum: "sha256:https://github.com/astral-sh/uv/releases/download/{{ uv_version }}/uv-{{ uv_platform }}.tar.gz.sha256"
+        dest: "/tmp/uv-{{ uv_version }}-{{ uv_platform }}.tar.gz"
+        mode: "0644"
+
+    - name: Unpack uv and uvx into /usr/local/bin
+      ansible.builtin.unarchive:
+        src: "/tmp/uv-{{ uv_version }}-{{ uv_platform }}.tar.gz"
+        dest: /usr/local/bin
+        remote_src: true
+        include:
+          - "uv-{{ uv_platform }}/uv"
+          - "uv-{{ uv_platform }}/uvx"
+        extra_opts:
+          - --strip-components=1

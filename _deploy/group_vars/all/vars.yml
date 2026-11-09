@@ -13,6 +13,37 @@ project_base_dir: /{{ organization_slug }}/{{ base_project_slug }}
 supervisor_conf: /etc/supervisor/conf.d
 
 requests_timeout: 30
+
+# Python comes from uv, not from the distribution. Projects with a uv.lock follow their
+# .python-version; python_version ("X.Y") only applies to projects still on requirements.txt,
+# and changing it rebuilds their venv on the next deploy.
+python_version: "3.13"
+uv_version: "0.13.7"
+uv_platform: x86_64-unknown-linux-gnu
+uv_environment:
+  UV_PYTHON_INSTALL_DIR: /opt/uv/python
+  UV_PYTHON_PREFERENCE: only-managed
+  UV_LINK_MODE: copy
+uv_cache_dir: /var/cache/uv/{{ main_user }}
+# The app user cannot write to the shared Python install dir: Python is installed beforehand, as root.
+uv_user_environment: "{{ uv_environment | combine({'UV_CACHE_DIR': uv_cache_dir, 'UV_PYTHON_DOWNLOADS': 'never'}) }}"
+venv:
+  path: /usr/local/{{ organization_slug }}/{{ project_slug }}/backend/venv
+
+# OpenTelemetry instrumentation of the backend, exported to the Alloy agent of the server.
+observability:
+  enabled: false
+  otlp_endpoint: http://localhost:4318
+  traces_sampler: parentbased_traceidratio
+  traces_sampler_arg: "1.0"
+opentelemetry_packages:
+  - opentelemetry-distro==0.66b2
+  - opentelemetry-exporter-otlp-proto-http==1.45.2
+  - opentelemetry-instrumentation-django==0.66b2
+  - opentelemetry-instrumentation-logging==0.66b2
+  - opentelemetry-instrumentation-psycopg==0.66b2
+  - opentelemetry-instrumentation-psycopg2==0.66b2
+  - opentelemetry-instrumentation-requests==0.66b2
 # if using postgresql database, you will need to
 # - define the var `database_password`
 # - install an additional Ansible module `ansible-galaxy collection install community.postgresql`

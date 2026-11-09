@@ -1,11 +1,33 @@
+{% set observability_enabled = observability.enabled | default(false) %}
+{% set backend_command = custom_backend_command | default(venv.path ~ '/bin/gunicorn ' ~ django_project_name ~ '.wsgi --name "' ~ project_slug ~ '" --timeout ' ~ requests_timeout ~ ' --workers=' ~ backend_workers ~ ' --bind=localhost:' ~ backend_application_port ~ ' --user="' ~ main_user ~ '"') %}
+{% set base_environment = {
+    'LANG': 'en_US.UTF-8',
+    'LC_ALL': 'en_US.UTF-8',
+    'PYTHONIOENCODING': 'utf8',
+    'CONFIG_PATH': backend_settings_path,
+} %}
+{% set opentelemetry_environment = {
+    'DJANGO_SETTINGS_MODULE': django_project_name ~ '.settings',
+    'OTEL_SERVICE_NAME': project_slug,
+    'OTEL_RESOURCE_ATTRIBUTES': 'deployment.environment=' ~ environment_name,
+    'OTEL_EXPORTER_OTLP_ENDPOINT': observability.otlp_endpoint | default(''),
+    'OTEL_EXPORTER_OTLP_PROTOCOL': 'http/protobuf',
+    'OTEL_TRACES_SAMPLER': observability.traces_sampler | default(''),
+    'OTEL_TRACES_SAMPLER_ARG': observability.traces_sampler_arg | default(''),
+    'OTEL_METRICS_EXPORTER': 'otlp',
+    'OTEL_LOGS_EXPORTER': 'otlp',
+    'OTEL_PYTHON_LOGGING_AUTO_INSTRUMENTATION_ENABLED': 'true',
+    'OTEL_PYTHON_LOG_CORRELATION': 'true',
+} if observability_enabled else {} %}
+{% set program_environment = base_environment | combine(opentelemetry_environment) %}
 [program:{{ project_slug }}-python]
-directory = {{ backend_path }} ;
-{% if custom_backend_command is defined %}
-command = {{ custom_backend_command }} ;
-{% else %}
-command = {{ venv.path }}/bin/gunicorn {{ django_project_name }}.wsgi --name "{{ project_slug }}" --timeout {{ requests_timeout }} --workers={{ backend_workers }} --bind=localhost:{{ backend_application_port }} --user="{{ main_user }}"
-{% endif %}
-user = {{ main_user }} ; User to run as
-stdout_logfile = {{ var_log_path }}/python_supervisor.log        ; Where to write log messages
-redirect_stderr = true                                                ; Save stderr in the same log
-environment=LANG="en_US.UTF-8",LC_ALL="en_US.UTF-8",PYTHONIOENCODING="utf8",CONFIG_PATH="{{ backend_settings_path }}"
+directory = {{ backend_path }}
+command = {{ (venv.path ~ '/bin/opentelemetry-instrument ') if observability_enabled }}{{ backend_command }}
+user = {{ main_user }}
+stopasgroup = true
+killasgroup = true
+stdout_logfile = {{ var_log_path }}/python_supervisor.log
+stdout_logfile_maxbytes = 50MB
+stdout_logfile_backups = 5
+redirect_stderr = true
+environment = {% for name, value in program_environment.items() %}{{ name }}="{{ value }}"{{ "," if not loop.last }}{% endfor %}

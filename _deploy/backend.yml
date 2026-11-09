@@ -17,6 +17,7 @@
         branch: "{{ backend_branch }}"
     - import_tasks: telescoop-deploy/tasks/install-python-venv.yml
       vars:
+        python_project_path: "{{ backend_path }}"
         requirements: "{{ backend_path }}/requirements.txt"
     - name: Install and setup database for prod and preprod only
       block:
