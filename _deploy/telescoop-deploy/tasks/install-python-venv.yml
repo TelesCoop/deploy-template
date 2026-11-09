@@ -1,24 +1,104 @@
-- name: Install venv package
-  apt:
-    name:
-      - python3-venv
+# Create the project virtualenv on a uv-managed Python and install its dependencies
+# Required vars:
+#  - venv.path
+#  - main_user
+#  - uv_environment, uv_user_environment
+#  - uv_cache_dir: uv cache of main_user, kept outside its home
+#  - python_project_path: directory holding pyproject.toml, uv.lock and .python-version (preferred)
+#    or requirements: path to a requirements file (legacy projects)
+#  - python_version: "X.Y", only for legacy projects; uv projects follow their .python-version
+# Optional vars:
+#  - observability.enabled: also install the OpenTelemetry instrumentation
+---
+- name: Install uv
+  ansible.builtin.import_tasks: install-uv.yml
 
-- name: Create venv directory and set permission
-  file:
+- name: Look for a uv lockfile
+  ansible.builtin.stat:
+    path: "{{ python_project_path | default('/nonexistent') }}/uv.lock"
+  register: uv_lockfile
+
+- name: Install the Python version pinned by the project
+  ansible.builtin.command:
+    cmd: uv python install
+    chdir: "{{ python_project_path }}"
+  environment: "{{ uv_environment }}"
+  register: uv_project_python_install
+  changed_when: "'Installed' in uv_project_python_install.stderr"
+  when: uv_lockfile.stat.exists
+
+- name: Install Python {{ python_version }} with uv
+  ansible.builtin.command:
+    cmd: uv python install {{ python_version }}
+  environment: "{{ uv_environment }}"
+  register: uv_python_install
+  changed_when: "'Installed' in uv_python_install.stderr"
+  when: not uv_lockfile.stat.exists
+
+- name: Read the existing venv metadata
+  ansible.builtin.slurp:
+    src: "{{ venv.path }}/pyvenv.cfg"
+  register: existing_venv_cfg
+  failed_when: false
+
+- name: Remove a venv built outside uv, or on another Python version for legacy projects
+  ansible.builtin.file:
     path: "{{ venv.path }}"
-    mode: "0755"
+    state: absent
+  register: outdated_venv
+  vars:
+    venv_cfg: "{{ existing_venv_cfg.content | default('') | b64decode }}"
+  when: >-
+    existing_venv_cfg.content is defined and (
+      'uv = ' not in venv_cfg or
+      (not uv_lockfile.stat.exists and ('version_info = ' ~ python_version) not in venv_cfg)
+    )
+
+- name: Create the uv cache and venv directories of {{ main_user }}
+  ansible.builtin.file:
+    path: "{{ item.path }}"
+    mode: "{{ item.mode }}"
     owner: "{{ main_user }}"
     state: directory
+  loop:
+    - {path: "{{ uv_cache_dir }}", mode: "0700"}
+    - {path: "{{ venv.path | dirname }}", mode: "0755"}
+    - {path: "{{ venv.path }}", mode: "0755"}
 
-- name: Create venv {{ venv.path }}
-  command:
-    cmd: python3 -m venv --system-site-packages {{ venv.path }}
+- name: Create venv {{ venv.path }} on Python {{ python_version }}
+  ansible.builtin.command:
+    cmd: uv venv --python {{ python_version }} {{ venv.path }}
     creates: "{{ venv.path }}/bin/python"
+  environment: "{{ uv_user_environment }}"
   become: true
   become_user: "{{ main_user }}"
+  when: not uv_lockfile.stat.exists
 
-- name: Install python dependencies
-  pip:
-    requirements: "{{ requirements }}"
-    virtualenv: "{{ venv.path }}"
-  when: clonecode.changed or force_update is defined
+- name: Install dependencies
+  when: >-
+    existing_venv_cfg.content is not defined or outdated_venv is changed or
+    clonecode.changed or force_update is defined
+  become: true
+  become_user: "{{ main_user }}"
+  block:
+    - name: Install locked dependencies with uv sync
+      ansible.builtin.command:
+        cmd: uv sync --locked --no-dev --compile-bytecode
+        chdir: "{{ python_project_path }}"
+      environment: "{{ uv_user_environment | combine({'UV_PROJECT_ENVIRONMENT': venv.path}) }}"
+      when: uv_lockfile.stat.exists
+      changed_when: true
+
+    - name: Install requirements with uv pip
+      ansible.builtin.command:
+        cmd: uv pip install --python {{ venv.path }}/bin/python --compile-bytecode -r {{ requirements }}
+      environment: "{{ uv_user_environment }}"
+      when: not uv_lockfile.stat.exists
+      changed_when: true
+
+    - name: Install OpenTelemetry instrumentation
+      ansible.builtin.command:
+        cmd: uv pip install --python {{ venv.path }}/bin/python {{ opentelemetry_packages | join(' ') }}
+      environment: "{{ uv_user_environment }}"
+      when: observability.enabled | default(false)
+      changed_when: true

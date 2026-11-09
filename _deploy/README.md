@@ -17,8 +17,8 @@ Note : Ce template ne couvre pas la configuration initiale d'un nouveau serveur 
 
 ### Sur les serveurs cibles
 
-- **Ubuntu/Debian** (testé sur Ubuntu 18.04+)
-- **Python 3** avec pip
+- **Ubuntu/Debian** (testé sur Ubuntu 26.04)
+- **Python 3** pour Ansible ; le Python des applications est installé par [uv](https://docs.astral.sh/uv/), indépendamment de la distribution
 - **Accès SSH** avec privilèges sudo
 
 ## Stack technique
@@ -58,6 +58,19 @@ cp /chemin/vers/vault.key .
 
 - éditer `group_vars/all/vars.yml`, se laisser guider par les commentaires
 - adapter `frontend.yml` et `backend.yml` à votre application
+
+### Python, uv et dépendances
+
+Le backend tourne dans un venv créé par uv, avec un Python géré par uv (installé dans `/opt/uv/python`), jamais celui de la distribution :
+
+- **Projet uv** (recommandé, voir [`_python/`](../_python/README.md)) : si `uv.lock` est présent dans `backend_path`, le déploiement installe la version de `.python-version` puis lance `uv sync --locked --no-dev`.
+- **Projet `requirements.txt`** : la version de Python vient de `python_version` (`group_vars/all/vars.yml`), puis `uv pip install -r requirements.txt`.
+- Le venv est reconstruit automatiquement s'il n'a pas été créé par uv, ou si `python_version` change pour un projet `requirements.txt` (relancer avec `-e force_update=true`).
+- Les venvs créés par uv ne contiennent pas pip : sur le serveur, utiliser `uv pip ... --python <venv>/bin/python`.
+
+#### Observabilité (OpenTelemetry)
+
+`observability.enabled: true` lance gunicorn via `opentelemetry-instrument` et envoie traces, métriques et logs à l'agent Alloy du serveur (`observability.otlp_endpoint`). Les paquets d'instrumentation (`opentelemetry_packages`) sont installés dans le venv au déploiement : aucun changement de code n'est nécessaire.
 
 ### 3. Configuration des environnements
 
