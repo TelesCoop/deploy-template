@@ -1,0 +1,48 @@
+[project]
+name = "my-project-back"
+version = "0.1.0"
+requires-python = ">=3.13,<3.14"
+dependencies = [
+    # Move to 6.2 (LTS) once it is released, in April 2027.
+    "django>=6.1,<6.2",
+    "gunicorn>=26.2",
+    "psycopg[binary]>=3.3",
+]
+
+[dependency-groups]
+dev = [
+    "coverage>=7.10",
+    "ruff==0.17.4",
+]
+
+[tool.uv]
+# A Django project is deployed as an application, never installed as a package.
+package = false
+
+[tool.ruff]
+target-version = "py313"
+line-length = 100
+extend-exclude = ["**/migrations/**"]
+
+[tool.ruff.lint]
+select = [
+    "E", "W",  # pycodestyle
+    "F",       # pyflakes
+    "I",       # isort
+    "UP",      # pyupgrade
+    "B",       # flake8-bugbear
+    "C4",      # flake8-comprehensions
+    "SIM",     # flake8-simplify
+    "DJ",      # flake8-django
+    "S",       # flake8-bandit
+    "RUF",     # ruff-specific rules
+]
+ignore = [
+    "E501",  # line length is handled by the formatter
+]
+
+[tool.ruff.lint.per-file-ignores]
+"**/tests/**" = ["S101", "S105", "S106"]
+
+[tool.ruff.format]
+docstring-code-format = true

@@ -20,17 +20,10 @@ env:
 
 jobs:
   setup:
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     steps:
       - name: Checkout repository
         uses: actions/checkout@v7
-
-      - name: Set up Python
-        uses: actions/setup-python@v7
-        with:
-          python-version: "3.10"
-          cache: "pip"
-      - run: pip install -r back/requirements.txt
 
       - name: Cache Node.js dependencies
         uses: actions/cache@v6
@@ -50,19 +43,53 @@ jobs:
         run: npm ci --prefer-offline --no-audit
         working-directory: ./front
 
+  python-lint:
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v7
+      - name: Set up uv
+        uses: astral-sh/setup-uv@v10
+        with:
+          enable-cache: true
+          cache-dependency-glob: back/uv.lock
+      - name: Lint with ruff
+        run: uv run --locked --only-dev ruff check --output-format=github .
+        working-directory: ./back
+      - name: Check formatting with ruff
+        run: uv run --locked --only-dev ruff format --check .
+        working-directory: ./back
+
+  dependency-audit:
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v7
+      - name: Set up uv
+        uses: astral-sh/setup-uv@v10
+      - name: Export locked production dependencies with their hashes
+        run: uv export --locked --no-dev --format requirements-txt --output-file "$RUNNER_TEMP/requirements.txt"
+        working-directory: ./back
+      - name: Audit dependencies for known vulnerabilities
+        run: uvx pip-audit==2.10.1 --disable-pip --requirement "$RUNNER_TEMP/requirements.txt"
+
   pre-commit:
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     needs: setup
     steps:
       - name: Checkout repository
         uses: actions/checkout@v7
 
-      - name: Set up Python
-        uses: actions/setup-python@v7
+      - name: Set up uv
+        uses: astral-sh/setup-uv@v10
         with:
-          python-version: "3.10"
-          cache: "pip"
-      - run: pip install -r back/requirements.txt
+          enable-cache: true
+          cache-dependency-glob: back/uv.lock
+      - name: Install backend dependencies
+        run: uv sync --locked
+        working-directory: ./back
+      - name: Expose the backend venv to the following steps
+        run: echo "$PWD/back/.venv/bin" >> "$GITHUB_PATH"
 
       - name: Set up PostGIS
         uses: nyurik/action-setup-postgis@v2
@@ -128,7 +155,7 @@ jobs:
           color: ${{ env.BADGE_COLOR }}
 
   node-setup:
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     needs: setup
     steps:
       - uses: actions/checkout@v7
@@ -149,7 +176,7 @@ jobs:
         working-directory: ./front
 
   frontend-tests:
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     needs: [setup, node-setup]
     steps:
       - uses: actions/checkout@v7
@@ -226,16 +253,20 @@ jobs:
           color: ${{ env.FRONTEND_BADGE_COLOR }}
 
   e2e-tests:
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     needs: setup
     steps:
       - uses: actions/checkout@v7
-      - name: Set up Python
-        uses: actions/setup-python@v7
+      - name: Set up uv
+        uses: astral-sh/setup-uv@v10
         with:
-          python-version: "3.10"
-          cache: "pip"
-      - run: pip install -r back/requirements.txt
+          enable-cache: true
+          cache-dependency-glob: back/uv.lock
+      - name: Install backend dependencies
+        run: uv sync --locked
+        working-directory: ./back
+      - name: Expose the backend venv to the following steps
+        run: echo "$PWD/back/.venv/bin" >> "$GITHUB_PATH"
 
       - name: Set up PostGIS
         uses: nyurik/action-setup-postgis@v2
@@ -301,17 +332,13 @@ jobs:
           retention-days: 10
 
   doc-tests:
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     needs: [setup]
     steps:
       - name: Checkout repository
         uses: actions/checkout@v7
 
-      - name: Set up Python doc
-        uses: actions/setup-python@v7
-        with:
-          python-version: "3.10"
-          cache: "pip"
-      - run: pip install -r mkdocs-requirements.txt
+      - name: Set up uv
+        uses: astral-sh/setup-uv@v10
       - name: Run documentation validation
-        run: mkdocs build --strict
+        run: uvx --with-requirements mkdocs-requirements.txt mkdocs build --strict
