@@ -1,3 +1,4 @@
+# Add `target-branch: dev` to every entry when preprod is deployed from an active dev branch.
 version: 2
 updates:
   - package-ecosystem: uv
@@ -15,6 +16,14 @@ updates:
     groups:
       js-minor-and-patch:
         update-types: [minor, patch]
+
+  - package-ecosystem: pre-commit
+    directory: /
+    schedule:
+      interval: monthly
+    groups:
+      pre-commit-hooks:
+        patterns: ["*"]
 
   - package-ecosystem: github-actions
     directory: /

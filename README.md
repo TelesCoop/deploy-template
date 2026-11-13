@@ -13,7 +13,7 @@ Voir [`_deploy/README.md`](/_deploy/README.md)
 
 Voir [`_github/README.md](/_github/README.md)
 
-Exemple de configuration Dependabot (uv, npm, GitHub Actions) : [`_github/dependabot.yml`](/_github/dependabot.yml)
+Exemple de configuration Dependabot (uv, npm, pre-commit, GitHub Actions) : [`_github/dependabot.yml`](/_github/dependabot.yml)
 
 ## Backend Python (uv, ruff)
 
