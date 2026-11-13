@@ -6,7 +6,7 @@ dependencies = [
     # Move to 6.2 (LTS) once it is released, in April 2027.
     "django>=6.1,<6.2",
     "gunicorn>=26.2",
-    "psycopg[binary]>=3.3",
+    "psycopg[binary]>=3.3.8",
 ]
 
 [dependency-groups]
