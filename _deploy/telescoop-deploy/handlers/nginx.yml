@@ -1,3 +1,10 @@
+# `systemctl reload` succeeds even when the new configuration is invalid (nginx keeps
+# the old one), and the error only shows up at the next restart: check it first.
+- name: Check nginx configuration
+  ansible.builtin.command: nginx -t
+  changed_when: false
+  listen: Reload nginx
+
 - name: Reload nginx
   ansible.builtin.systemd:
     name: nginx
