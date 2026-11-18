@@ -1,4 +1,21 @@
 {{ ansible_managed | comment }}
+{#
+  `add_header` is only inherited from the enclosing level when the current one defines
+  none: every location with its own `add_header` must call this macro again, or it
+  silently drops HSTS and the other security headers.
+#}
+{% macro security_headers(static_frontend=false) -%}
+    {% if static_frontend -%}
+    add_header X-Frame-Options "SAMEORIGIN" always;
+    add_header X-Content-Type-Options "nosniff" always;
+    add_header Referrer-Policy "no-referrer-when-downgrade" always;
+    {% endif -%}
+    {% if hsts_max_age | default(63072000) | int > 0 -%}
+    add_header Strict-Transport-Security "max-age={{ hsts_max_age | default(63072000) | int }}{{ '; includeSubDomains' if hsts_include_subdomains | default(false) }}" always;
+    {% endif -%}
+{% endmacro %}
+{#- `http2 on;` replaces the `http2` listen parameter, deprecated since nginx 1.25.1 #}
+{% set http2_directive = nginx_version | default('0') is version('1.25.1', '>=') %}
 
 {% if maintenance_mode is not defined or not maintenance_mode %}
     {% if has_backend is defined and has_backend %}
@@ -16,7 +33,11 @@
 
 server {
 
-    listen 443 ssl;
+    listen 443 ssl{{ '' if http2_directive else ' http2' }};
+    listen [::]:443 ssl{{ '' if http2_directive else ' http2' }};
+    {% if http2_directive -%}
+    http2 on;
+    {% endif %}
 
     ssl_certificate /etc/letsencrypt/live/{{ main_hostname }}/fullchain.pem; # managed by Certbot
     ssl_certificate_key /etc/letsencrypt/live/{{ main_hostname }}/privkey.pem; # managed by Certbot
@@ -27,6 +48,9 @@ server {
 
     access_log /var/log/nginx/access_{{ main_hostname.replace('.', '_') }}.log;
     error_log /var/log/nginx/error_{{ main_hostname.replace('.', '_') }}.log;
+
+    server_tokens off;
+    {{ security_headers() }}
 
     {% for hostname in redirect_hostnames -%}
     if ($host = {{ hostname }}) {
@@ -41,7 +65,7 @@ server {
 
     # http://stackoverflow.com/questions/15238506/djangos-suspiciousoperation-invalid-http-host-header
     # Deny illegal Host headers
-    if ($host !~* ^({{ "|".join(all_hostnames) }})$ ) {
+    if ($host !~* ^({{ all_hostnames | map('regex_escape') | join('|') }})$ ) {
         return 444;
     }
 
@@ -106,13 +130,12 @@ server {
         location ~* \.(png|jpg|jpeg|gif|ico|svg|woff|woff2|ttf|eot)$ {
             expires 1y;
             add_header Cache-Control "public, immutable";
+            {{ security_headers(static_frontend=true) | indent(8) }}
             access_log off;
         }
 
         # Security headers
-        add_header X-Frame-Options "SAMEORIGIN" always;
-        add_header X-Content-Type-Options "nosniff" always;
-        add_header Referrer-Policy "no-referrer-when-downgrade" always;
+        {{ security_headers(static_frontend=true) | indent(4) }}
     }
     {% elif frontend_mode == "SSR" -%}
     location / {
@@ -122,6 +145,7 @@ server {
         proxy_set_header   X-Real-IP $remote_addr;
         proxy_set_header   X-Forwarded-For $proxy_add_x_forwarded_for;
         proxy_set_header   X-Forwarded-Host $server_name;
+        proxy_set_header   X-Forwarded-Proto $scheme;
     }
     {% endif %} {# frontend mode #}
     {% endif %} {# maintenance mode #}
@@ -144,5 +168,7 @@ server {
     server_name {{ " ".join(all_hostnames) }};
 
     listen 80;
+    listen [::]:80;
+    server_tokens off;
     return 404; # managed by Certbot
 }
